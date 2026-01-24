@@ -120,6 +120,7 @@ const handleCityChange = (cityId) => {
   
 </div>
 <hr />
+
 <div>
   <h4>City</h4>
 
@@ -127,10 +128,7 @@ const handleCityChange = (cityId) => {
 
   <div className="city-list">
     {cities.map((city) => (
-      <label
-        key={city.CityId}
-        className="filter-option"
-      >
+      <label key={city.CityId}>
         <input
           type="checkbox"
           checked={selectedCities.includes(city.CityId)}
@@ -141,7 +139,6 @@ const handleCityChange = (cityId) => {
     ))}
   </div>
 </div>
-
 
 
       

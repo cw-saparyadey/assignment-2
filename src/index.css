@@ -8,35 +8,38 @@ body {
   font-family: Arial, sans-serif;
 }
 
-
+/* PAGE GUTTERS */
 .page-container {
-  padding-left: 250px;
-  padding-right: 250px;
+  max-width: calc(100% - 400px); /* 200px left + 200px right */
+  margin: 0 auto;
 }
 
-
+/* MAIN LAYOUT */
 .content-wrapper {
   display: flex;
-  height: 100vh;
-  gap: 16px;
+  gap: 24px;
 }
 
-
+/* LEFT FILTER PANEL */
 .filters-section {
   width: 25%;
-  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 16px;
   padding: 16px;
+  height: calc(100vh - 20px);
+  overflow-y: auto;
+  border: 1px solid #eee;
 }
 
-
+/* RIGHT CAR SECTION */
 .cars-section {
   width: 75%;
-  border: 1px solid #ddd;
-  padding: 16px;
-  overflow-y: auto;
 }
+
+/* GRID */
 .cars-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 24px;
 }
+

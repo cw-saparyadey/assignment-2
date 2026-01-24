@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import CarCard from "./components/CarCard/CarCard";
 import Filters from "./components/Filters";
 import SortBar from "./components/SortBar";
 function App() {
   const [cars, setCars] = useState([]);
  const searchParams = new URLSearchParams(window.location.search);
+const loaderRef = useRef(null);
 
 const [selectedFuels, setSelectedFuels] = useState(
   searchParams.get("fuel")
@@ -29,6 +30,45 @@ const [selectedMakes, setSelectedMakes] = useState(
     ? searchParams.get("car").split("+").map(Number)
     : JSON.parse(localStorage.getItem("selectedMakes")) || []
 );
+const [nextPageUrl, setNextPageUrl] = useState(null);
+const [isLoading, setIsLoading] = useState(false);
+const normalizeNextPageUrl = (url) => {
+  if (!url) return null;
+
+  // remove leading /api if backend already sent it
+  if (url.startsWith("/api/")) {
+    return `/api${url}`;
+  }
+
+  // otherwise assume relative path
+  return `/api/api${url}`;
+};
+
+const fetchNextPage = () => {
+  if (!nextPageUrl || isLoading) return;
+
+  setIsLoading(true);
+
+  const finalUrl = normalizeNextPageUrl(nextPageUrl);
+
+  console.log("NEXT PAGE FETCH:", finalUrl);
+
+  fetch(finalUrl)
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error("Failed to fetch next page");
+      }
+      return res.json();
+    })
+    .then((data) => {
+      setCars((prev) => [...prev, ...(data.stocks || [])]);
+      setNextPageUrl(data.nextPageUrl || null);
+    })
+    .catch((err) => console.error("Next page error", err))
+    .finally(() => setIsLoading(false));
+};
+
+
 
 const getValidCityIdsFromUrl = () => {
   const cityParam = searchParams.get("city");
@@ -55,6 +95,8 @@ const [sortBy, setSortBy] = useState(
 
 
  useEffect(() => {
+  setCars([]);
+setNextPageUrl(null);
   let url = "/api/api/stocks";
   let params = [];
 
@@ -84,6 +126,7 @@ if (selectedCities.length > 0) {
     .then((res) => res.json())
     .then((data) => {
       setCars(data.stocks || []);
+      setNextPageUrl(data.nextPageUrl || null);
     })
     .catch((err) => console.error(err));
 }, [selectedFuels, minBudget, maxBudget, selectedMakes, selectedCities]);
@@ -157,6 +200,22 @@ if (sortBy === "yearDesc") {
   sortedCars.sort((a, b) => getYear(b) - getYear(a));
 }
 console.log(sortedCars.map(car => getYear(car)));
+useEffect(() => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting) {
+        fetchNextPage();
+      }
+    },
+    { threshold: 1 }
+  );
+
+  if (loaderRef.current) {
+    observer.observe(loaderRef.current);
+  }
+
+  return () => observer.disconnect();
+}, [nextPageUrl, isLoading]);
 
 
   return (
@@ -185,6 +244,9 @@ console.log(sortedCars.map(car => getYear(car)));
   {sortedCars.map((car) => (
     <CarCard key={car.id} car={car} />
   ))}
+</div>
+<div ref={loaderRef} style={{ height: "40px", textAlign: "center" }}>
+  {isLoading && <p>Loading more cars...</p>}
 </div>
 
         </main>
