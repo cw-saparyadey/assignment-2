@@ -10,10 +10,13 @@ function Filters({
   maxBudget,
   setMaxBudget,
   selectedMakes,
-  setSelectedMakes
+  setSelectedMakes,
+  selectedCities,
+  setSelectedCities
 }) {
    
 const [makes, setMakes] = useState([]);
+const [cities, setCities] = useState([]);
 
 
     const handleFuelChange = (value) => {
@@ -36,6 +39,19 @@ const handleMakeChange = (makeId) => {
     prev.includes(makeId)
       ? prev.filter((id) => id !== makeId)
       : [...prev, makeId]
+  );
+};
+useEffect(() => {
+  fetch("/api/api/cities")
+    .then(res => res.json())
+    .then(data => setCities(data || []))
+    .catch(err => console.error("City API error", err));
+}, []);
+const handleCityChange = (cityId) => {
+  setSelectedCities(prev =>
+    prev.includes(cityId)
+      ? prev.filter(id => id !== cityId)
+      : [...prev, cityId]
   );
 };
 
@@ -103,6 +119,30 @@ const handleMakeChange = (makeId) => {
   ))}
   
 </div>
+<hr />
+<div>
+  <h4>City</h4>
+
+  {cities.length === 0 && <p>Loading cities...</p>}
+
+  <div className="city-list">
+    {cities.map((city) => (
+      <label
+        key={city.CityId}
+        className="filter-option"
+      >
+        <input
+          type="checkbox"
+          checked={selectedCities.includes(city.CityId)}
+          onChange={() => handleCityChange(city.CityId)}
+        />
+        {city.CityName}
+      </label>
+    ))}
+  </div>
+</div>
+
+
 
       
     </div>
