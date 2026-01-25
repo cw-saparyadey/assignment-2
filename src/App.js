@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import CarCard from "./components/CarCard/CarCard";
-import Filters from "./components/Filters";
-import SortBar from "./components/SortBar";
+import Filters from "./components/Filters/Filters";
+import SortBar from "./components/SortBar/SortBar";
+import AppliedFilters from "./components/AppliedFilters/AppliedFilters";
 function App() {
   const [cars, setCars] = useState([]);
  const searchParams = new URLSearchParams(window.location.search);
@@ -239,6 +240,19 @@ useEffect(() => {
 
         <main className="cars-section">
           <SortBar sortBy={sortBy} setSortBy={setSortBy} />
+          <AppliedFilters
+  selectedFuels={selectedFuels}
+  setSelectedFuels={setSelectedFuels}
+  selectedMakes={selectedMakes}
+  setSelectedMakes={setSelectedMakes}
+  selectedCities={selectedCities}
+  setSelectedCities={setSelectedCities}
+  minBudget={minBudget}
+  maxBudget={maxBudget}
+  setMinBudget={setMinBudget}
+  setMaxBudget={setMaxBudget}
+/>
+
           <div className="cars-grid">
 
   {sortedCars.map((car) => (

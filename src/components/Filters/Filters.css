@@ -1,0 +1,148 @@
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  color: #007aff;
+  cursor: pointer;
+}
+
+.filter-block {
+  border-bottom: 1px solid #eee;
+  padding: 16px 0;
+}
+
+.filter-title {
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  margin: 10px 0;
+}
+
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkbox-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.budget-pills,
+.city-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pill {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pill.active {
+  border-color: #0a8;
+  color: #0a8;
+  background: #e6f7f4;
+}
+
+.custom-budget {
+  margin-top: 12px;
+  color: #007aff;
+  cursor: pointer;
+}
+.filter-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 12px 0;
+}
+
+.chevron {
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid #333;
+  border-bottom: 2px solid #333;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.chevron.up {
+  transform: rotate(-135deg);
+}
+
+.chevron.down {
+  transform: rotate(45deg);
+}
+.custom-budget-panel {
+  margin-top: 16px;
+}
+
+.custom-budget-slider {
+  margin-top: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.budget-range {
+  width: 100%;
+  appearance: none;
+  height: 4px;
+  background: #d9d9d9;
+  border-radius: 4px;
+  outline: none;
+}
+
+.budget-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #0f766e; /* teal */
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #555;
+  margin-top: 6px;
+}
+
+.budget-inputs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.budget-inputs input {
+  width: 70px;
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  text-align: center;
+}

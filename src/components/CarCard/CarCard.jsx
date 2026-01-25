@@ -22,10 +22,12 @@ function CarCard({ car }) {
     );
   };
 
-  return (
+ return (
     <div className="car-card">
       <div className="image-container">
-        <button className="nav-btn left" onClick={goPrev}>
+        <button className="nav-btn left" onClick={() =>
+          setCurrentIndex(i => i === 0 ? images.length - 1 : i - 1)
+        }>
           ‹
         </button>
 
@@ -33,25 +35,33 @@ function CarCard({ car }) {
           src={images[currentIndex]}
           alt={car.carName}
           className="car-image"
-          onError={(e) => {
-            e.target.src = placeholder;
-          }}
+          loading="lazy"
+          onError={(e) => (e.target.src = placeholder)}
         />
 
-        <button className="nav-btn right" onClick={goNext}>
+        <button className="nav-btn right" onClick={() =>
+          setCurrentIndex(i => i === images.length - 1 ? 0 : i + 1)
+        }>
           ›
         </button>
       </div>
 
-      <h3>{car.carName}</h3>
+      <div className="card-body">
+        <h3 className="title">{car.carName}</h3>
 
-      <p className="car-meta">
-        {car.km} km | {car.fuelType}
-      </p>
+        <p className="meta">
+          {car.km} km | {car.fuel}
+        </p>
 
-      <p className="car-price">₹ {car.price} Lakh</p>
+        <div className="price-row">
+          <span className="price">Rs. {car.price}</span>
+          <span className="emi">{car.emiText}</span>
+        </div>
 
-      <button className="car-btn">Get Seller Details</button>
+        <a className="offer-link">Make Offer</a>
+
+        <button className="car-btn">Get Seller Details</button>
+      </div>
     </div>
   );
 }
