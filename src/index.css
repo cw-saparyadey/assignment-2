@@ -8,26 +8,26 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* PAGE GUTTERS */
+
 .page-container {
-  height: 100vh;
-  overflow: hidden;
+  width: 100%;
+  min-height: 100vh;
+  background: #fff;
 }
 
 .content-wrapper {
   display: flex;
-  max-width: 1400px;
+  max-width: 1600px;          
   margin: 0 auto;
-  padding: 0 120px; /* gutter space left + right */
-  height: 100%;
+  padding: 0 clamp(200px, 12vw, 300px); 
   gap: 24px;
 }
 
+
 .filters-section {
-  width: 25%;
+  width: 320px;
   position: sticky;
   top: 0;
-  height: 100vh;
   overflow-y: auto;
   padding-right: 12px;
 }
@@ -40,7 +40,7 @@ body {
 }
 
 
-/* GRID */
+
 .cars-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -79,4 +79,94 @@ body {
   color: #1a73e8;
   cursor: pointer;
   font-size: 13px;
+}
+@media (max-width: 1024px) {
+  .content-wrapper {
+    padding: 0 64px;
+  }
+
+  .filters-section {
+    width: 280px;
+  }
+
+  .cars-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+
+ 
+  html, body {
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .page-container {
+    overflow: visible;
+  }
+
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 0 12px;
+  }
+
+
+  .filters-section {
+    width: 100%;
+    position: static;
+    overflow: visible;
+    z-index: 1;
+  }
+
+  .filter-block {
+    position: relative;
+    background: #fff;
+  }
+
+  .city-pills {
+    max-height: 160px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+ 
+  .cars-section {
+    width: 100%;
+    position: static;
+    overflow: visible;
+    z-index: 0;
+    margin-top: 16px;
+  }
+
+  .cars-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .car-card {
+    position: relative;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .image-container {
+    height: 220px;
+    overflow: hidden;
+  }
+
+  .car-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  
+  .car-btn {
+    position: relative;
+    z-index: 1;
+  }
 }

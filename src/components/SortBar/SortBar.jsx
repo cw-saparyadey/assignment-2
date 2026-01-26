@@ -4,7 +4,7 @@ function SortBar({ sortBy, setSortBy }) {
   return (
     <div className="sort-bar">
       <div className="applied-filters">
-        {/* optional later: Budget: 5–8 Lakh × */}
+        
       </div>
 
       <div className="sort-control">

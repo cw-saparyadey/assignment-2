@@ -70,7 +70,7 @@ const handleCityChange = (cityId) => {
 };
 return (
   <div className="filters-root">
-    {/* Header */}
+  
     <div className="filters-header">
        <div className="filters-title">
     <span className="filter-icon">⏳</span>
@@ -90,21 +90,20 @@ return (
   </button>
     </div>
 
-    {/* Budget */}
-    {/* Budget */}
+    
 <div className="filter-block">
-  {/* HEADER */}
+ 
   <div
     className="filter-title clickable"
     onClick={() => toggleSection("budget")}
   >
     <span>Budget (Lakh)</span>
 
-    {/* Chevron icon */}
+   
     <span className={`chevron ${openSections.budget ? "up" : "down"}`} />
   </div>
 
-  {/* BODY */}
+ 
   {openSections.budget && (
     <>
       <div className="budget-pills">
@@ -137,42 +136,63 @@ return (
 >
   Customize Your Budget
 </div>
+
 {showCustomBudget && (
   <div className="custom-budget-slider">
-    {/* Slider */}
-    <input
-      type="range"
-      min={0}
-      max={20}
-      step={1}
-      value={minBudget || 0}
-      onChange={(e) => {
-        setMinBudget(e.target.value);
-        if (!maxBudget || Number(maxBudget) < Number(e.target.value)) {
-          setMaxBudget(e.target.value);
-        }
-      }}
-      className="budget-range"
-    />
+    <div className="slider-wrapper">
 
-    {/* Labels */}
-    <div className="slider-labels">
-      <span>Any</span>
-      <span>20+ Lakh</span>
+    
+      <div className="range-track" />
+
+     
+      <div
+        className="range-active"
+        style={{
+          left: `${(minBudget / 20) * 100}%`,
+          width: `${((maxBudget - minBudget) / 20) * 100}%`
+        }}
+      />
+
+     
+      <input
+        type="range"
+        min="0"
+        max="20"
+        step="1"
+        value={minBudget}
+        onChange={(e) =>
+          setMinBudget(Math.min(+e.target.value, maxBudget - 1))
+        }
+        className="range"
+      />
+
+      
+      <input
+        type="range"
+        min="0"
+        max="20"
+        step="1"
+        value={maxBudget}
+        onChange={(e) =>
+          setMaxBudget(Math.max(+e.target.value, minBudget + 1))
+        }
+        className="range"
+      />
     </div>
 
-    {/* Inputs */}
+    
+
     <div className="budget-inputs">
       <input
         type="number"
         value={minBudget}
-        onChange={(e) => setMinBudget(e.target.value)}
+        onChange={(e) => setMinBudget(+e.target.value)}
       />
       <span>-</span>
       <input
         type="number"
         value={maxBudget}
-        onChange={(e) => setMaxBudget(e.target.value)}
+        onChange={(e) => setMaxBudget(+e.target.value)}
       />
     </div>
   </div>
@@ -184,9 +204,9 @@ return (
 </div>
 
 
-    {/* Make */}
+    
 <div className="filter-block">
-  {/* HEADER */}
+ 
   <div
     className="filter-title"
     onClick={() => toggleSection("make")}
@@ -195,7 +215,7 @@ return (
     <span className={`chevron ${openSections.make ? "up" : "down"}`} />
   </div>
 
-  {/* BODY */}
+ 
   {openSections.make && (
     <>
       <input
@@ -225,9 +245,9 @@ return (
   )}
 </div>
 
-    {/* City */}
+   
 <div className="filter-block">
-  {/* HEADER */}
+ 
   <div
     className="filter-title"
     onClick={() => toggleSection("city")}
@@ -236,7 +256,7 @@ return (
     <span className={`chevron ${openSections.city ? "up" : "down"}`} />
   </div>
 
-  {/* BODY */}
+
   {openSections.city && (
     <>
       <input
@@ -268,9 +288,9 @@ return (
 </div>
 
 
-    {/* Fuel */}
+   
    <div className="filter-block">
-  {/* HEADER */}
+  
   <div
     className="filter-title"
     onClick={() => toggleSection("fuel")}
@@ -279,7 +299,7 @@ return (
     <span className={`chevron ${openSections.fuel ? "up" : "down"}`} />
   </div>
 
-  {/* BODY */}
+ 
   {openSections.fuel && (
     <div className="checkbox-list">
       {FUEL_TYPES.map(fuel => (

@@ -10,17 +10,6 @@ function CarCard({ car }) {
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const goPrev = () => {
-    setCurrentIndex((prev) =>
-      prev === 0 ? images.length - 1 : prev - 1
-    );
-  };
-
-  const goNext = () => {
-    setCurrentIndex((prev) =>
-      prev === images.length - 1 ? 0 : prev + 1
-    );
-  };
 
  return (
     <div className="car-card">
