@@ -62,6 +62,11 @@ const fetchNextPage = () => {
       return res.json();
     })
     .then((data) => {
+      const newCars = data.stocks || [];
+      if (newCars.length === 0) {
+        setNextPageUrl(null);
+        return;
+      }
       setCars((prev) => [...prev, ...(data.stocks || [])]);
       setNextPageUrl(data.nextPageUrl || null);
     })
@@ -202,6 +207,7 @@ if (sortBy === "yearDesc") {
 }
 console.log(sortedCars.map(car => getYear(car)));
 useEffect(() => {
+  if(!nextPageUrl )return;
   const observer = new IntersectionObserver(
     (entries) => {
       if (entries[0].isIntersecting) {
@@ -261,9 +267,11 @@ useEffect(() => {
     <CarCard key={car.id} car={car} />
   ))}
 </div>
-<div ref={loaderRef} style={{ height: "40px", textAlign: "center" }}>
-  {isLoading && <p>Loading more cars...</p>}
-</div>
+{nextPageUrl && (
+  <div ref={loaderRef} style={{ height: "40px", textAlign: "center" }}>
+    {isLoading && <p>Loading more cars...</p>}
+  </div>
+)}
 
         </main>
       </div>
