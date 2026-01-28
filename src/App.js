@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import CarCard from "./components/CarCard/CarCard";
 import Filters from "./components/Filters/Filters";
 import SortBar from "./components/SortBar/SortBar";
+import Header from "./components/Header/Header";
 import AppliedFilters from "./components/AppliedFilters/AppliedFilters";
 function App() {
   const [cars, setCars] = useState([]);
@@ -36,12 +37,11 @@ const [isLoading, setIsLoading] = useState(false);
 const normalizeNextPageUrl = (url) => {
   if (!url) return null;
 
-  // remove leading /api if backend already sent it
+  
   if (url.startsWith("/api/")) {
     return `/api${url}`;
   }
 
-  // otherwise assume relative path
   return `/api/api${url}`;
 };
 
@@ -170,11 +170,11 @@ if (validCities.length > 0) {
   window.history.replaceState(null, "", newUrl);
 }, [selectedFuels, minBudget, maxBudget, selectedMakes, selectedCities,sortBy]);
 
-// helper functions (VERY IMPORTANT)
+
 const getPrice = (car) => {
   if (!car.price) return 0;
 
-  // price comes like "33.33 Lakh"
+  
   const value = parseFloat(car.price);
   return isNaN(value) ? 0 : value;
 };
@@ -221,6 +221,8 @@ useEffect(() => {
 
   return (
     <div className="page-container">
+      <Header />
+
       <div className="content-wrapper">
         <aside className="filters-section">
           <Filters

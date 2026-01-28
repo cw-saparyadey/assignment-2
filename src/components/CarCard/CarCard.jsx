@@ -47,7 +47,7 @@ function CarCard({ car }) {
           <span className="emi">{car.emiText}</span>
         </div>
 
-        <a className="offer-link">Make Offer</a>
+        <a href="#" className="offer-link">Make Offer</a>
 
         <button className="car-btn">Get Seller Details</button>
       </div>

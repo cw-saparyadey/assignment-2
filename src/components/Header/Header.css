@@ -1,0 +1,86 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  min-width: 120px; /* IMPORTANT */
+}
+
+/* Logo image */
+.logo img {
+  height: 28px;
+  width: auto;
+  display: block; /* 🔥 KEY FIX */
+}
+
+/* Nav */
+.nav-links {
+  display: flex;
+  gap: 32px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+/* Right side */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Search */
+.search-box {
+  position: relative;
+}
+
+.search-box input {
+  padding: 8px 36px 8px 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+}
+
+/* Icons */
+.icon {
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* 🔥 MOBILE */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none; /* hide menu like CarWale */
+  }
+
+  .search-box input {
+    width: 160px;
+  }
+}
