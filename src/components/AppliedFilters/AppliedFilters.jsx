@@ -22,6 +22,7 @@ function AppliedFilters({
 
   return (
     <div className="applied-filters">
+      
       {selectedFuels.map((fuel) => (
         <span key={fuel} className="chip">
           Fuel {fuel}

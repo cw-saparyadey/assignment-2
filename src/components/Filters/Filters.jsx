@@ -2,6 +2,9 @@ import React from 'react';
     import { useState,useEffect} from 'react';
 import { FUEL_TYPES } from '../../utils/constant';
 import "./Filters.css";
+const DEFAULT_MIN = 0;
+const DEFAULT_MAX = 20;
+
 function Filters({
   selectedFuels,
   setSelectedFuels,
@@ -68,6 +71,26 @@ const handleCityChange = (cityId) => {
       : [...prev, cityId]
   );
 };
+const safeMin = Number(minBudget) || DEFAULT_MIN;
+const safeMax = Number(maxBudget) || DEFAULT_MAX;
+const filteredCities = cities.filter((city) => {
+  const matchesQuery = city.CityName
+    .toLowerCase()
+    .includes(cityQuery.toLowerCase());
+
+  // 🔹 No search → only popular cities
+  if (!cityQuery) {
+    return city.IsPopular;
+  }
+
+  // 🔹 Searching → all cities
+  return matchesQuery;
+});
+const filteredMakes = makes.filter(make =>
+  make.makeName.toLowerCase().includes(makeQuery.toLowerCase())
+);
+
+
 return (
   <div className="filters-root">
   
@@ -82,8 +105,8 @@ return (
       setSelectedFuels([]);
       setSelectedMakes([]);
       setSelectedCities([]);
-      setMinBudget("");
-      setMaxBudget("");
+      setMinBudget(DEFAULT_MIN);
+      setMaxBudget(DEFAULT_MAX);
     }}
   >
     Clear All
@@ -107,28 +130,29 @@ return (
   {openSections.budget && (
     <>
       <div className="budget-pills">
-        {[
-          ["0", "3", "Below ₹ 3 Lakh"],
-          ["3", "5", "₹ 3-5 Lakh"],
-          ["5", "8", "₹ 5-8 Lakh"],
-          ["8", "12", "₹ 8-12 Lakh"],
-          ["12", "20", "₹ 12-20 Lakh"],
-          ["20", "", "₹ 20 Lakh +"]
-        ].map(([min, max, label]) => (
-          <button
-            key={label}
-            className={`pill ${
-              minBudget === min && maxBudget === max ? "active" : ""
-            }`}
-            onClick={() => {
-              setMinBudget(min);
-              setMaxBudget(max);
-            }}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+  {[
+    [0, 3, "Below ₹ 3 Lakh"],
+    [3, 5, "₹ 3-5 Lakh"],
+    [5, 8, "₹ 5-8 Lakh"],
+    [8, 12, "₹ 8-12 Lakh"],
+    [12, 20, "₹ 12-20 Lakh"],
+    [20, DEFAULT_MAX, "₹ 20 Lakh +"]
+  ].map(([min, max, label]) => (
+    <button
+      key={label}
+      className={`pill ${
+        safeMin === min && safeMax === max ? "active" : ""
+      }`}
+      onClick={() => {
+        setMinBudget(min);
+        setMaxBudget(max);
+      }}
+    >
+      {label}
+    </button>
+  ))}
+</div>
+
 
       <div
   className="custom-budget clickable"
@@ -140,59 +164,64 @@ return (
 {showCustomBudget && (
   <div className="custom-budget-slider">
     <div className="slider-wrapper">
-
-    
       <div className="range-track" />
 
-     
+      {/* ACTIVE RANGE */}
       <div
         className="range-active"
         style={{
-          left: `${(minBudget / 20) * 100}%`,
-          width: `${((maxBudget - minBudget) / 20) * 100}%`
+          left: `${(safeMin / DEFAULT_MAX) * 100}%`,
+          width: `${((safeMax - safeMin) / DEFAULT_MAX) * 100}%`
         }}
       />
 
-     
+      {/* MIN SLIDER */}
       <input
         type="range"
-        min="0"
-        max="20"
+        min={DEFAULT_MIN}
+        max={DEFAULT_MAX}
         step="1"
-        value={minBudget}
+        value={safeMin}
         onChange={(e) =>
-          setMinBudget(Math.min(+e.target.value, maxBudget - 1))
+          setMinBudget(Math.min(+e.target.value, safeMax - 1))
         }
         className="range"
       />
 
-      
+      {/* MAX SLIDER */}
       <input
         type="range"
-        min="0"
-        max="20"
+        min={DEFAULT_MIN}
+        max={DEFAULT_MAX}
         step="1"
-        value={maxBudget}
+        value={safeMax}
         onChange={(e) =>
-          setMaxBudget(Math.max(+e.target.value, minBudget + 1))
+          setMaxBudget(Math.max(+e.target.value, safeMin + 1))
         }
         className="range"
       />
     </div>
 
-    
-
+    {/* INPUT BOXES */}
     <div className="budget-inputs">
       <input
         type="number"
-        value={minBudget}
-        onChange={(e) => setMinBudget(+e.target.value)}
+        min={DEFAULT_MIN}
+        max={DEFAULT_MAX}
+        value={safeMin}
+        onChange={(e) =>
+          setMinBudget(Math.min(+e.target.value || DEFAULT_MIN, safeMax - 1))
+        }
       />
       <span>-</span>
       <input
         type="number"
-        value={maxBudget}
-        onChange={(e) => setMaxBudget(+e.target.value)}
+        min={DEFAULT_MIN}
+        max={DEFAULT_MAX}
+        value={safeMax}
+        onChange={(e) =>
+          setMaxBudget(Math.max(+e.target.value || DEFAULT_MAX, safeMin + 1))
+        }
       />
     </div>
   </div>
@@ -226,21 +255,22 @@ return (
       />
 
       <div className="checkbox-list">
-        {makes
-          .filter(make =>
-            make.makeName.toLowerCase().includes(makeQuery.toLowerCase())
-          )
-          .map(make => (
-            <label key={make.makeId} className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={selectedMakes.includes(make.makeId)}
-                onChange={() => handleMakeChange(make.makeId)}
-              />
-              <span>{make.makeName}</span>
-            </label>
-          ))}
-      </div>
+  {filteredMakes.length === 0 && makeQuery ? (
+    <div className="not-found">No make found</div>
+  ) : (
+    filteredMakes.map(make => (
+      <label key={make.makeId} className="checkbox-row">
+        <input
+          type="checkbox"
+          checked={selectedMakes.includes(make.makeId)}
+          onChange={() => handleMakeChange(make.makeId)}
+        />
+        <span>{make.makeName}</span>
+      </label>
+    ))
+  )}
+</div>
+
     </>
   )}
 </div>
@@ -266,23 +296,25 @@ return (
         onChange={(e) => setCityQuery(e.target.value)}
       />
 
-      <div className="city-pills">
-        {cities
-          .filter(city =>
-            city.CityName.toLowerCase().includes(cityQuery.toLowerCase())
-          )
-          .map(city => (
-            <button
-              key={city.CityId}
-              className={`pill ${
-                selectedCities.includes(city.CityId) ? "active" : ""
-              }`}
-              onClick={() => handleCityChange(city.CityId)}
-            >
-              {city.CityName}
-            </button>
-          ))}
-      </div>
+     <div className="city-pills">
+  {filteredCities.length === 0 && cityQuery ? (
+    <div className="not-found">No city found</div>
+  ) : (
+    filteredCities.map((city) => (
+      <button
+        key={city.CityId}
+        className={`pill ${
+          selectedCities.includes(city.CityId) ? "active" : ""
+        }`}
+        onClick={() => handleCityChange(city.CityId)}
+      >
+        {city.CityName}
+      </button>
+    ))
+  )}
+</div>
+
+
     </>
   )}
 </div>
