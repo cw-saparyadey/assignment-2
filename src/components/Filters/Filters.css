@@ -169,3 +169,8 @@
   background: transparent;
   height: 0;
 }
+.budget-error {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+}

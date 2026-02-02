@@ -2,8 +2,8 @@ import React from 'react';
     import { useState,useEffect} from 'react';
 import { FUEL_TYPES } from '../../utils/constant';
 import "./Filters.css";
-const DEFAULT_MIN = 0;
-const DEFAULT_MAX = 20;
+const SLIDER_MIN = 0;
+const SLIDER_MAX = 21;
 
 function Filters({
   selectedFuels,
@@ -24,6 +24,7 @@ function Filters({
   fuel: true,
 });
 const [showCustomBudget, setShowCustomBudget] = useState(false);
+const [budgetError, setBudgetError] = useState("");
 
 
 const toggleSection = (key) => {
@@ -71,8 +72,12 @@ const handleCityChange = (cityId) => {
       : [...prev, cityId]
   );
 };
-const safeMin = Number(minBudget) || DEFAULT_MIN;
-const safeMax = Number(maxBudget) || DEFAULT_MAX;
+const sliderMin =
+  minBudget === "" ? SLIDER_MIN : Math.min(Number(minBudget), SLIDER_MAX);
+
+const sliderMax =
+  maxBudget === "" ? SLIDER_MAX : Math.min(Number(maxBudget), SLIDER_MAX);
+
 const filteredCities = cities.filter((city) => {
   const matchesQuery = city.CityName
     .toLowerCase()
@@ -105,8 +110,8 @@ return (
       setSelectedFuels([]);
       setSelectedMakes([]);
       setSelectedCities([]);
-      setMinBudget(DEFAULT_MIN);
-      setMaxBudget(DEFAULT_MAX);
+      setMinBudget("");
+      setMaxBudget("");
     }}
   >
     Clear All
@@ -129,19 +134,19 @@ return (
  
   {openSections.budget && (
     <>
-      <div className="budget-pills">
+    <div className="budget-pills">
   {[
     [0, 3, "Below ₹ 3 Lakh"],
     [3, 5, "₹ 3-5 Lakh"],
     [5, 8, "₹ 5-8 Lakh"],
     [8, 12, "₹ 8-12 Lakh"],
     [12, 20, "₹ 12-20 Lakh"],
-    [20, DEFAULT_MAX, "₹ 20 Lakh +"]
+    [20, 100000, "₹ 20 Lakh +"],
   ].map(([min, max, label]) => (
     <button
       key={label}
       className={`pill ${
-        safeMin === min && safeMax === max ? "active" : ""
+        minBudget === min && maxBudget === max ? "active" : ""
       }`}
       onClick={() => {
         setMinBudget(min);
@@ -152,6 +157,7 @@ return (
     </button>
   ))}
 </div>
+
 
 
       <div
@@ -167,62 +173,119 @@ return (
       <div className="range-track" />
 
       {/* ACTIVE RANGE */}
-      <div
-        className="range-active"
-        style={{
-          left: `${(safeMin / DEFAULT_MAX) * 100}%`,
-          width: `${((safeMax - safeMin) / DEFAULT_MAX) * 100}%`
-        }}
-      />
+     <div
+  className="range-active"
+  style={{
+    left: `${(sliderMin / SLIDER_MAX) * 100}%`,
+    width: `${((sliderMax - sliderMin) / SLIDER_MAX) * 100}%`,
+  }}
+/>
 
-      {/* MIN SLIDER */}
-      <input
-        type="range"
-        min={DEFAULT_MIN}
-        max={DEFAULT_MAX}
-        step="1"
-        value={safeMin}
-        onChange={(e) =>
-          setMinBudget(Math.min(+e.target.value, safeMax - 1))
-        }
-        className="range"
-      />
+<input
+  type="range"
+  min={SLIDER_MIN}
+  max={SLIDER_MAX}
+  value={sliderMin}
+  onChange={(e) => {
+    const val = Number(e.target.value);
 
-      {/* MAX SLIDER */}
-      <input
-        type="range"
-        min={DEFAULT_MIN}
-        max={DEFAULT_MAX}
-        step="1"
-        value={safeMax}
-        onChange={(e) =>
-          setMaxBudget(Math.max(+e.target.value, safeMin + 1))
-        }
-        className="range"
-      />
+    if (maxBudget !== "" && val > maxBudget) return;
+
+    setBudgetError("");
+    setMinBudget(val);
+  }}
+  className="range"
+/>
+
+<input
+  type="range"
+  min={SLIDER_MIN}
+  max={SLIDER_MAX}
+  value={sliderMax}
+  onChange={(e) => {
+    const val = Number(e.target.value);
+
+    if (minBudget !== "" && val < minBudget) return;
+
+    setBudgetError("");
+    setMaxBudget(val);
+  }}
+  className="range"
+/>
+
+
+
+
     </div>
 
     {/* INPUT BOXES */}
     <div className="budget-inputs">
-      <input
-        type="number"
-        min={DEFAULT_MIN}
-        max={DEFAULT_MAX}
-        value={safeMin}
-        onChange={(e) =>
-          setMinBudget(Math.min(+e.target.value || DEFAULT_MIN, safeMax - 1))
-        }
-      />
-      <span>-</span>
-      <input
-        type="number"
-        min={DEFAULT_MIN}
-        max={DEFAULT_MAX}
-        value={safeMax}
-        onChange={(e) =>
-          setMaxBudget(Math.max(+e.target.value || DEFAULT_MAX, safeMin + 1))
-        }
-      />
+  <input
+  type="number"
+  value={minBudget}
+  placeholder="Any"
+  onChange={(e) => {
+    const value = e.target.value;
+
+    if (value === "") {
+      setMinBudget("");
+      setBudgetError("Please enter valid input");
+      return;
+    }
+
+    const num = Number(value);
+    if (isNaN(num)) {
+      setBudgetError("Please enter valid input");
+      return;
+    }
+
+    if (maxBudget !== "" && num > maxBudget) {
+      setBudgetError("Minimum budget cannot be greater than maximum");
+      return;
+    }
+
+    setBudgetError("");
+    setMinBudget(num);
+  }}
+/>
+
+
+      <span> - </span>
+   
+<input
+  type="number"
+  value={maxBudget}
+  placeholder="21+"
+  onChange={(e) => {
+    const value = e.target.value;
+
+    if (value === "") {
+      setMaxBudget("");
+      setBudgetError("Please enter valid input");
+      return;
+    }
+
+    const num = Number(value);
+    if (isNaN(num)) {
+      setBudgetError("Please enter valid input");
+      return;
+    }
+
+    if (minBudget !== "" && num < minBudget) {
+      setBudgetError("Maximum budget cannot be less than minimum");
+      return;
+    }
+
+    setBudgetError("");
+    setMaxBudget(num);
+  }}
+/>
+{budgetError && (
+  <div className="budget-error">{budgetError}</div>
+)}
+
+
+
     </div>
   </div>
 )}

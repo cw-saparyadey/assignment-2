@@ -105,7 +105,7 @@ function App() {
     }
 
     if (minBudget || maxBudget) {
-      params.push(`budget=${minBudget || 0}-${maxBudget || 100}`);
+      params.push(`budget=${minBudget || 0}-${maxBudget || 500}`);
     }
 
     if (selectedMakes.length > 0) {
