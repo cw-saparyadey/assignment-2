@@ -4,13 +4,13 @@ import Filters from "./components/Filters/Filters";
 import SortBar from "./components/SortBar/SortBar";
 import Header from "./components/Header/Header";
 import AppliedFilters from "./components/AppliedFilters/AppliedFilters";
-
 import { sortCars } from "./utils/sortUtils";
 import { buildFilterParams } from "./utils/filterParams";
-import { saveToStorage, getFromStorage } from "./utils/storage";
 import { normalizeNextPageUrl } from "./utils/pagination";
+import { getFiltersFromStorage, saveFiltersToStorage } from "./utils/storage";
 
 function App() {
+  const storedFilters = getFiltersFromStorage();
   const [cars, setCars] = useState([]);
   const [nextPageUrl, setNextPageUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,24 +19,21 @@ function App() {
   const searchParams = new URLSearchParams(window.location.search);
 
   const [selectedFuels, setSelectedFuels] = useState(
-    searchParams.get("fuel")
-      ? searchParams.get("fuel").split("+").map(Number)
-      : getFromStorage("selectedFuels", [])
+    storedFilters?.fuels || [],
   );
-
-  const [minBudget, setMinBudget] = useState(null);
-  const [maxBudget, setMaxBudget] = useState(null);
-
+  const [minBudget, setMinBudget] = useState(
+    storedFilters?.budget?.min ?? null,
+  );
+  const [maxBudget, setMaxBudget] = useState(
+    storedFilters?.budget?.max ?? null,
+  );
   const [selectedMakes, setSelectedMakes] = useState(
-    getFromStorage("selectedMakes", [])
+    storedFilters?.makes || [],
   );
   const [selectedCities, setSelectedCities] = useState(
-    getFromStorage("selectedCities", [])
+    storedFilters?.cities || [],
   );
-  const [sortBy, setSortBy] = useState(
-    searchParams.get("sort") || getFromStorage("sortBy", "")
-  );
-
+  const [sortBy, setSortBy] = useState(storedFilters?.sortBy || "");
 
   const getValidCityIdsFromUrl = () => {
     const cityParam = searchParams.get("city");
@@ -46,10 +43,10 @@ function App() {
     return cityParam
       .split("+")
       .map(Number)
-      .filter((id) => id > 0); 
+      .filter((id) => id > 0);
   };
 
-   useEffect(() => {
+  useEffect(() => {
     setCars([]);
     setNextPageUrl(null);
 
@@ -73,8 +70,7 @@ function App() {
       .catch(console.error);
   }, [selectedFuels, minBudget, maxBudget, selectedMakes, selectedCities]);
 
-
-const fetchNextPage = () => {
+  const fetchNextPage = () => {
     if (!nextPageUrl || isLoading) return;
 
     setIsLoading(true);
@@ -101,24 +97,77 @@ const fetchNextPage = () => {
       .finally(() => setIsLoading(false));
   };
 
- useEffect(() => {
+  useEffect(() => {
     if (!nextPageUrl) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) fetchNextPage();
       },
-      { threshold: 1 }
+      { threshold: 1 },
     );
 
     if (loaderRef.current) observer.observe(loaderRef.current);
     return () => observer.disconnect();
   }, [nextPageUrl, isLoading]);
-  
-  const sortedCars = useMemo(
-    () => sortCars(cars, sortBy),
-    [cars, sortBy]
-  );
+
+  const sortedCars = useMemo(() => sortCars(cars, sortBy), [cars, sortBy]);
+  useEffect(() => {
+    saveFiltersToStorage({
+      fuels: selectedFuels,
+      budget: {
+        min: minBudget,
+        max: maxBudget,
+      },
+      makes: selectedMakes,
+      cities: selectedCities,
+      sortBy,
+    });
+  }, [
+    selectedFuels,
+    minBudget,
+    maxBudget,
+    selectedMakes,
+    selectedCities,
+    sortBy,
+  ]);
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (selectedFuels.length > 0) {
+      params.set("fuel", selectedFuels.join("+"));
+    }
+
+    if (Number.isFinite(minBudget) && Number.isFinite(maxBudget)) {
+      params.set("budget", `${minBudget}-${maxBudget}`);
+    }
+
+    if (selectedMakes.length > 0) {
+      params.set("car", selectedMakes.join("+"));
+    }
+
+    if (selectedCities.length > 0) {
+      params.set("city", selectedCities.join("+"));
+    }
+
+    if (sortBy) {
+      params.set("sort", sortBy);
+    }
+
+    const newUrl =
+      params.toString().length > 0
+        ? `?${params.toString()}`
+        : window.location.pathname;
+
+    window.history.replaceState(null, "", newUrl);
+  }, [
+    selectedFuels,
+    minBudget,
+    maxBudget,
+    selectedMakes,
+    selectedCities,
+    sortBy,
+  ]);
 
   return (
     <div className="page-container">

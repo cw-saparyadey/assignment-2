@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { FUEL_TYPES } from "../../utils/constant";
 import "./Filters.css";
 import { validateBudget } from "../../utils/budgetUtils";
+import {clearFiltersFromStorage} from "../../utils/storage";
 const SLIDER_MIN = 0;
 const SLIDER_MAX = 21;
 
@@ -160,12 +161,14 @@ function Filters({
         <button
           className="clear-btn"
           onClick={() => {
-            setSelectedFuels([]);
-            setSelectedMakes([]);
-            setSelectedCities([]);
-            setMinBudget("");
-            setMaxBudget("");
-          }}
+    clearFiltersFromStorage();
+    setSelectedFuels([]);
+    setSelectedMakes([]);
+    setSelectedCities([]);
+    setMinBudget(null);
+    setMaxBudget(null);
+  }}
+
         >
           Clear All
         </button>

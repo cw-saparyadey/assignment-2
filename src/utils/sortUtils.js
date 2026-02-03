@@ -1,5 +1,13 @@
-// utils/sortUtils.js
 
+function getNumericPrice(car) {
+  if (typeof car.price === "number") return car.price;
+  if (typeof car.price === "string") {
+    const num = parseFloat(car.price.replace(/[^\d.]/g, ""));
+    return isNaN(num) ? 0 : num;
+  }
+
+  return 0;
+}
 export function sortCars(cars, sortBy) {
   if (!Array.isArray(cars)) return [];
 
@@ -7,10 +15,14 @@ export function sortCars(cars, sortBy) {
 
   switch (sortBy) {
     case "priceAsc":
-      return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+      return sorted.sort(
+        (a, b) => getNumericPrice(a) - getNumericPrice(b)
+      );
 
     case "priceDesc":
-      return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
+      return sorted.sort(
+        (a, b) => getNumericPrice(b) - getNumericPrice(a)
+      );
 
     case "yearDesc":
       return sorted.sort(
@@ -18,6 +30,6 @@ export function sortCars(cars, sortBy) {
       );
 
     default:
-      return sorted; // Best match / no sort
+      return sorted; 
   }
 }

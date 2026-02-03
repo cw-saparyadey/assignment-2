@@ -1,4 +1,3 @@
-// utils/filterParams.js
 
 export function buildFilterParams({
   selectedFuels,

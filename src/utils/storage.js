@@ -1,18 +1,18 @@
-// utils/storage.js
+const STORAGE_KEY = "carwaleFilters";
 
-export const saveToStorage = (key, value) => {
+export const getFiltersFromStorage = () => {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {
-    console.error("Storage save failed", e);
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : null;
+  } catch {
+    return null;
   }
 };
 
-export const getFromStorage = (key, fallback) => {
-  try {
-    const value = localStorage.getItem(key);
-    return value ? JSON.parse(value) : fallback;
-  } catch {
-    return fallback;
-  }
+export const saveFiltersToStorage = (filters) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
+};
+
+export const clearFiltersFromStorage = () => {
+  localStorage.removeItem(STORAGE_KEY);
 };
