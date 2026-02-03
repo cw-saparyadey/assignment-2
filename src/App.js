@@ -228,7 +228,7 @@ function App() {
     }
 
     return () => observer.disconnect();
-  }, [nextPageUrl,fetchNextPage]);
+  }, [nextPageUrl]);
 
   return (
     <div className="page-container">
