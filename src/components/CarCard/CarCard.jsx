@@ -10,13 +10,15 @@ function CarCard({ car }) {
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-
- return (
+  return (
     <div className="car-card">
       <div className="image-container">
-        <button className="nav-btn left" onClick={() =>
-          setCurrentIndex(i => i === 0 ? images.length - 1 : i - 1)
-        }>
+        <button
+          className="nav-btn left"
+          onClick={() =>
+            setCurrentIndex((i) => (i === 0 ? images.length - 1 : i - 1))
+          }
+        >
           ‹
         </button>
 
@@ -28,9 +30,12 @@ function CarCard({ car }) {
           onError={(e) => (e.target.src = placeholder)}
         />
 
-        <button className="nav-btn right" onClick={() =>
-          setCurrentIndex(i => i === images.length - 1 ? 0 : i + 1)
-        }>
+        <button
+          className="nav-btn right"
+          onClick={() =>
+            setCurrentIndex((i) => (i === images.length - 1 ? 0 : i + 1))
+          }
+        >
           ›
         </button>
       </div>
@@ -47,7 +52,9 @@ function CarCard({ car }) {
           <span className="emi">{car.emiText}</span>
         </div>
 
-        <a href="#" className="offer-link">Make Offer</a>
+        <a href="#" className="offer-link">
+          Make Offer
+        </a>
 
         <button className="car-btn">Get Seller Details</button>
       </div>
