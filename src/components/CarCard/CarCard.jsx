@@ -1,4 +1,4 @@
-import placeholder from "../../assets/image.avif";
+import placeholder from "../../assets/image.png";
 import "./CarCard.css";
 import { useState } from "react";
 

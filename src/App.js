@@ -1,13 +1,9 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef } from "react";
 import CarCard from "./components/CarCard/CarCard";
 import Filters from "./components/Filters/Filters";
 import SortBar from "./components/SortBar/SortBar";
 import Header from "./components/Header/Header";
 import AppliedFilters from "./components/AppliedFilters/AppliedFilters";
-import { sortCars } from "./utils/sortUtils";
-import { buildFilterParams } from "./utils/filterParams";
-import { saveToStorage, getFromStorage } from "./utils/storage";
-
 function App() {
   const [cars, setCars] = useState([]);
   const searchParams = new URLSearchParams(window.location.search);
@@ -19,16 +15,17 @@ function App() {
       : JSON.parse(localStorage.getItem("selectedFuels")) || [],
   );
 
-  const [minBudget, setMinBudget] = useState(() => {
-  const budget = searchParams.get("budget");
-  return budget ? Number(budget.split("-")[0]) : null;
-});
+  const [minBudget, setMinBudget] = useState(
+    searchParams.get("budget")
+      ? searchParams.get("budget").split("-")[0]
+      : localStorage.getItem("minBudget") || "",
+  );
 
-const [maxBudget, setMaxBudget] = useState(() => {
-  const budget = searchParams.get("budget");
-  return budget ? Number(budget.split("-")[1]) : null;
-});
-
+  const [maxBudget, setMaxBudget] = useState(
+    searchParams.get("budget")
+      ? searchParams.get("budget").split("-")[1]
+      : localStorage.getItem("maxBudget") || "",
+  );
 
   const [selectedMakes, setSelectedMakes] = useState(
     searchParams.get("car")
@@ -39,12 +36,13 @@ const [maxBudget, setMaxBudget] = useState(() => {
   const [isLoading, setIsLoading] = useState(false);
   const normalizeNextPageUrl = (url) => {
     if (!url) return null;
- if (url.startsWith("http")) return url;
-  if (url.startsWith("/api")) return url;
 
-  return `/api${url}`;
-};
-    
+    if (url.startsWith("/api/")) {
+      return `/api${url}`;
+    }
+
+    return `/api/api${url}`;
+  };
 
   const fetchNextPage = () => {
     if (!nextPageUrl || isLoading) return;
@@ -83,7 +81,7 @@ const [maxBudget, setMaxBudget] = useState(() => {
     return cityParam
       .split("+")
       .map(Number)
-      .filter((id) => id > 0);
+      .filter((id) => id > 0); 
   };
 
   const [selectedCities, setSelectedCities] = useState(
@@ -100,17 +98,29 @@ const [maxBudget, setMaxBudget] = useState(() => {
     setCars([]);
     setNextPageUrl(null);
     let url = "/api/api/stocks";
-    const query = buildFilterParams({
-      selectedFuels,
-      minBudget,
-      maxBudget,
-      selectedMakes,
-      selectedCities,
-    });
+    let params = [];
 
-    if (query) {
-      url += `?${query}`;
+    if (selectedFuels.length > 0) {
+      params.push(`fuel=${selectedFuels.join("+")}`);
     }
+
+    if (minBudget || maxBudget) {
+      params.push(`budget=${minBudget || 0}-${maxBudget || 100}`);
+    }
+
+    if (selectedMakes.length > 0) {
+      params.push(`car=${selectedMakes.join("+")}`);
+    }
+
+    if (selectedCities.length > 0) {
+      params.push(`city=${selectedCities.join("+")}`);
+    }
+
+    if (params.length > 0) {
+      url += "?" + params.join("&");
+    }
+
+    console.log("FETCH URL:", url);
 
     fetch(url)
       .then((res) => res.json())
@@ -121,12 +131,12 @@ const [maxBudget, setMaxBudget] = useState(() => {
       .catch((err) => console.error(err));
   }, [selectedFuels, minBudget, maxBudget, selectedMakes, selectedCities]);
   useEffect(() => {
-    saveToStorage("selectedFuels", selectedFuels);
-    saveToStorage("minBudget", minBudget);
-    saveToStorage("maxBudget", maxBudget);
-    saveToStorage("selectedMakes", selectedMakes);
-    saveToStorage("selectedCities", selectedCities);
-    saveToStorage("sortBy", sortBy);
+    localStorage.setItem("selectedFuels", JSON.stringify(selectedFuels));
+    localStorage.setItem("minBudget", minBudget);
+    localStorage.setItem("maxBudget", maxBudget);
+    localStorage.setItem("selectedMakes", JSON.stringify(selectedMakes));
+    localStorage.setItem("selectedCities", JSON.stringify(selectedCities));
+    localStorage.setItem("sortBy", sortBy);
   }, [
     selectedFuels,
     minBudget,
@@ -135,7 +145,6 @@ const [maxBudget, setMaxBudget] = useState(() => {
     selectedCities,
     sortBy,
   ]);
-
   useEffect(() => {
     const params = new URLSearchParams();
 
@@ -143,13 +152,9 @@ const [maxBudget, setMaxBudget] = useState(() => {
       params.set("fuel", selectedFuels.join("+"));
     }
 
-    if (
-  Number.isFinite(minBudget) &&
-  Number.isFinite(maxBudget)
-) {
-  params.set("budget", `${minBudget}-${maxBudget}`);
-}
-
+    if (minBudget || maxBudget) {
+      params.set("budget", `${minBudget || 0}-${maxBudget || 100}`);
+    }
 
     if (selectedMakes.length > 0) {
       params.set("car", selectedMakes.join("+"));
@@ -178,11 +183,35 @@ const [maxBudget, setMaxBudget] = useState(() => {
     sortBy,
   ]);
 
+  const getPrice = (car) => {
+    if (!car.price) return 0;
 
-  const sortedCars = useMemo(() => {
-    return sortCars(cars, sortBy);
-  }, [cars, sortBy]);
+    const value = parseFloat(car.price);
+    return isNaN(value) ? 0 : value;
+  };
 
+  const getYear = (car) => {
+    return Number(car.makeYear) || 0;
+  };
+
+  const sortedCars = [...cars];
+
+  if (sortBy === "priceAsc") {
+    sortedCars.sort((a, b) => getPrice(a) - getPrice(b));
+  }
+
+  if (sortBy === "priceDesc") {
+    sortedCars.sort((a, b) => getPrice(b) - getPrice(a));
+  }
+
+  if (sortBy === "yearAsc") {
+    sortedCars.sort((a, b) => getYear(a) - getYear(b));
+  }
+
+  if (sortBy === "yearDesc") {
+    sortedCars.sort((a, b) => getYear(b) - getYear(a));
+  }
+  console.log(sortedCars.map((car) => getYear(car)));
   useEffect(() => {
     if (!nextPageUrl) return;
     const observer = new IntersectionObserver(
@@ -199,7 +228,7 @@ const [maxBudget, setMaxBudget] = useState(() => {
     }
 
     return () => observer.disconnect();
-  }, [nextPageUrl, isLoading]);
+  }, [nextPageUrl,fetchNextPage]);
 
   return (
     <div className="page-container">
@@ -237,17 +266,10 @@ const [maxBudget, setMaxBudget] = useState(() => {
           />
 
           <div className="cars-grid">
-            {isLoading ? (
-              <div className="cars-placeholder">Loading cars...</div>
-            ) : sortedCars.length === 0 ? (
-              <div className="cars-placeholder">
-                No cars found for selected filters
-              </div>
-            ) : (
-              sortedCars.map((car) => <CarCard key={car.id} car={car} />)
-            )}
+            {sortedCars.map((car) => (
+              <CarCard key={car.id} car={car} />
+            ))}
           </div>
-
           {nextPageUrl && (
             <div
               ref={loaderRef}
@@ -261,5 +283,4 @@ const [maxBudget, setMaxBudget] = useState(() => {
     </div>
   );
 }
-
 export default App;
