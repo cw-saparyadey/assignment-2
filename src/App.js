@@ -178,16 +178,6 @@ const [maxBudget, setMaxBudget] = useState(() => {
     sortBy,
   ]);
 
-  const getPrice = (car) => {
-    if (!car.price) return 0;
-
-    const value = parseFloat(car.price);
-    return isNaN(value) ? 0 : value;
-  };
-
-  const getYear = (car) => {
-    return Number(car.makeYear) || 0;
-  };
 
   const sortedCars = useMemo(() => {
     return sortCars(cars, sortBy);
