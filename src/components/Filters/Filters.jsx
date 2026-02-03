@@ -2,6 +2,7 @@ import React from 'react';
     import { useState,useEffect} from 'react';
 import { FUEL_TYPES } from '../../utils/constant';
 import "./Filters.css";
+import { validateBudget } from "../../utils/budgetUtils";
 const SLIDER_MIN = 0;
 const SLIDER_MAX = 21;
 
@@ -94,6 +95,57 @@ const filteredCities = cities.filter((city) => {
 const filteredMakes = makes.filter(make =>
   make.makeName.toLowerCase().includes(makeQuery.toLowerCase())
 );
+
+const handleMinBudgetChange = (e) => {
+  const value = e.target.value;
+
+  // allow empty while typing
+  if (value === "") {
+    setMinBudget("");
+    setBudgetError("Please enter valid input");
+    return;
+  }
+
+  const num = Number(value);
+  if (isNaN(num)) {
+    setBudgetError("Please enter valid input");
+    return;
+  }
+
+  const error = validateBudget(num, maxBudget);
+  if (error) {
+    setBudgetError(error);
+    return;
+  }
+
+  setBudgetError("");
+  setMinBudget(num);
+};
+
+const handleMaxBudgetChange = (e) => {
+  const value = e.target.value;
+
+  if (value === "") {
+    setMaxBudget("");
+    setBudgetError("Please enter valid input");
+    return;
+  }
+
+  const num = Number(value);
+  if (isNaN(num)) {
+    setBudgetError("Please enter valid input");
+    return;
+  }
+
+  const error = validateBudget(minBudget, num);
+  if (error) {
+    setBudgetError(error);
+    return;
+  }
+
+  setBudgetError("");
+  setMaxBudget(num);
+};
 
 
 return (
@@ -220,66 +272,24 @@ return (
 
     {/* INPUT BOXES */}
     <div className="budget-inputs">
-  <input
+  
+<input
   type="number"
   value={minBudget}
   placeholder="Any"
-  onChange={(e) => {
-    const value = e.target.value;
-
-    if (value === "") {
-      setMinBudget("");
-      setBudgetError("Please enter valid input");
-      return;
-    }
-
-    const num = Number(value);
-    if (isNaN(num)) {
-      setBudgetError("Please enter valid input");
-      return;
-    }
-
-    if (maxBudget !== "" && num > maxBudget) {
-      setBudgetError("Minimum budget cannot be greater than maximum");
-      return;
-    }
-
-    setBudgetError("");
-    setMinBudget(num);
-  }}
+  onChange={handleMinBudgetChange}
 />
 
 
       <span> - </span>
-   
-<input
+   <input
   type="number"
   value={maxBudget}
   placeholder="21+"
-  onChange={(e) => {
-    const value = e.target.value;
-
-    if (value === "") {
-      setMaxBudget("");
-      setBudgetError("Please enter valid input");
-      return;
-    }
-
-    const num = Number(value);
-    if (isNaN(num)) {
-      setBudgetError("Please enter valid input");
-      return;
-    }
-
-    if (minBudget !== "" && num < minBudget) {
-      setBudgetError("Maximum budget cannot be less than minimum");
-      return;
-    }
-
-    setBudgetError("");
-    setMaxBudget(num);
-  }}
+  onChange={handleMaxBudgetChange}
 />
+
+
 {budgetError && (
   <div className="budget-error">{budgetError}</div>
 )}

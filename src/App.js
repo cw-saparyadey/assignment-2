@@ -4,6 +4,10 @@ import Filters from "./components/Filters/Filters";
 import SortBar from "./components/SortBar/SortBar";
 import Header from "./components/Header/Header";
 import AppliedFilters from "./components/AppliedFilters/AppliedFilters";
+import { sortCars } from "./utils/sortUtils";
+import { buildFilterParams } from "./utils/filterParams";
+import { saveToStorage, getFromStorage } from "./utils/storage";
+
 function App() {
   const [cars, setCars] = useState([]);
   const searchParams = new URLSearchParams(window.location.search);
@@ -98,27 +102,17 @@ function App() {
     setCars([]);
     setNextPageUrl(null);
     let url = "/api/api/stocks";
-    let params = [];
+    const query = buildFilterParams({
+  selectedFuels,
+  minBudget,
+  maxBudget,
+  selectedMakes,
+  selectedCities,
+});
 
-    if (selectedFuels.length > 0) {
-      params.push(`fuel=${selectedFuels.join("+")}`);
-    }
-
-    if (minBudget || maxBudget) {
-      params.push(`budget=${minBudget || 0}-${maxBudget || 500}`);
-    }
-
-    if (selectedMakes.length > 0) {
-      params.push(`car=${selectedMakes.join("+")}`);
-    }
-
-    if (selectedCities.length > 0) {
-      params.push(`city=${selectedCities.join(",")}`);
-    }
-
-    if (params.length > 0) {
-      url += "?" + params.join("&");
-    }
+if (query) {
+  url += `?${query}`;
+}
 
 
     fetch(url)
@@ -130,20 +124,14 @@ function App() {
       .catch((err) => console.error(err));
   }, [selectedFuels, minBudget, maxBudget, selectedMakes, selectedCities]);
   useEffect(() => {
-    localStorage.setItem("selectedFuels", JSON.stringify(selectedFuels));
-    localStorage.setItem("minBudget", minBudget);
-    localStorage.setItem("maxBudget", maxBudget);
-    localStorage.setItem("selectedMakes", JSON.stringify(selectedMakes));
-    localStorage.setItem("selectedCities", JSON.stringify(selectedCities));
-    localStorage.setItem("sortBy", sortBy);
-  }, [
-    selectedFuels,
-    minBudget,
-    maxBudget,
-    selectedMakes,
-    selectedCities,
-    sortBy,
-  ]);
+  saveToStorage("selectedFuels", selectedFuels);
+  saveToStorage("minBudget", minBudget);
+  saveToStorage("maxBudget", maxBudget);
+  saveToStorage("selectedMakes", selectedMakes);
+  saveToStorage("selectedCities", selectedCities);
+  saveToStorage("sortBy", sortBy);
+}, [selectedFuels, minBudget, maxBudget, selectedMakes, selectedCities, sortBy]);
+
   useEffect(() => {
     const params = new URLSearchParams();
 
@@ -193,26 +181,10 @@ function App() {
     return Number(car.makeYear) || 0;
   };
 
-  const sortedCars = useMemo(() => {
-    const carsCopy = [...cars];
-    if (sortBy === "priceAsc") {
-      carsCopy.sort((a, b) => getPrice(a) - getPrice(b));
-    }
+ const sortedCars = useMemo(() => {
+  return sortCars(cars, sortBy);
+}, [cars, sortBy]);
 
-    if (sortBy === "priceDesc") {
-      carsCopy.sort((a, b) => getPrice(b) - getPrice(a));
-    }
-
-    if (sortBy === "yearAsc") {
-      carsCopy.sort((a, b) => getYear(a) - getYear(b));
-    }
-
-    if (sortBy === "yearDesc") {
-      carsCopy.sort((a, b) => getYear(b) - getYear(a));
-    }
-    console.log(carsCopy.map((car) => getYear(car)));
-    return carsCopy;
-  }, [cars, sortBy]);
 
   useEffect(() => {
     if (!nextPageUrl) return;
@@ -268,10 +240,19 @@ function App() {
           />
 
           <div className="cars-grid">
-            {sortedCars.map((car) => (
-              <CarCard key={car.id} car={car} />
-            ))}
-          </div>
+  {isLoading ? (
+    <div className="cars-placeholder">Loading cars...</div>
+  ) : sortedCars.length === 0 ? (
+    <div className="cars-placeholder">
+      No cars found for selected filters
+    </div>
+  ) : (
+    sortedCars.map((car) => (
+      <CarCard key={car.id} car={car} />
+    ))
+  )}
+</div>
+
           {nextPageUrl && (
             <div
               ref={loaderRef}

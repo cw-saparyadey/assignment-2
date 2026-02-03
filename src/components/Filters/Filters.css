@@ -1,4 +1,13 @@
 
+/* MAIN FILTER CONTAINER */
+.filters-root {
+  height: calc(100vh - 80px);   /* header ke niche */
+  overflow-y: auto;             /* ✅ FILTER SCROLL */
+  padding-right: 8px;
+  border-right: 1px solid #eee;
+}
+
+
 .filters-header {
   display: flex;
   justify-content: space-between;
