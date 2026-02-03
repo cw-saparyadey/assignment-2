@@ -42,13 +42,26 @@ function Filters({
     );
   };
   useEffect(() => {
-    fetch("/api/api/v2/makes/?type=new")
-      .then((res) => res.json())
-      .then((data) => {
-        setMakes(data || []);
-      })
-      .catch((err) => console.error("Makes API error", err));
-  }, []);
+  const fetchFiltersData = async () => {
+    try {
+      const [makesRes, citiesRes] = await Promise.all([
+        fetch("/api/api/v2/makes/?type=new"),
+        fetch("/api/api/cities"),
+      ]);
+
+      const makesData = await makesRes.json();
+      const citiesData = await citiesRes.json();
+
+      setMakes(makesData || []);
+      setCities(citiesData || []);
+    } catch (err) {
+      console.error("Filters API error", err);
+    }
+  };
+
+  fetchFiltersData();
+}, []);
+
   const handleMakeChange = (makeId) => {
     setSelectedMakes((prev) =>
       prev.includes(makeId)
@@ -56,12 +69,7 @@ function Filters({
         : [...prev, makeId],
     );
   };
-  useEffect(() => {
-    fetch("/api/api/cities")
-      .then((res) => res.json())
-      .then((data) => setCities(data || []))
-      .catch((err) => console.error("City API error", err));
-  }, []);
+ 
   const handleCityChange = (cityId) => {
     setSelectedCities((prev) =>
       prev.includes(cityId)
@@ -95,7 +103,6 @@ function Filters({
   const handleMinBudgetChange = (e) => {
     const value = e.target.value;
 
-    // allow empty while typing
     if (value === "") {
       setMinBudget("");
       setBudgetError("Please enter valid input");

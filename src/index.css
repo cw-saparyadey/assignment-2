@@ -5,6 +5,8 @@
 }
 
 body {
+  height: 100%;
+  overflow: hidden;
   font-family: Arial, sans-serif;
 }
 
@@ -13,14 +15,16 @@ body {
   width: 100%;
   min-height: 100vh;
   background: #fff;
+  overflow:hidden;
 }
 
 .content-wrapper {
   display: flex;
-  max-width: 1600px;          
+  max-width: 1600px; 
+  height:calc(100vh - 80px);         
   margin: 0 auto;
   padding: 0 clamp(200px, 12vw, 300px); 
-  gap: 24px;
+  gap: 18px;
 }
 
 
@@ -28,12 +32,12 @@ body {
   width: 320px;
   position: sticky;
   top: 0;
-  overflow-y: auto;
+  overflow:hidden;
   padding-right: 12px;
 }
 
 .cars-section {
-  width: 75%;
+ width: 75%;
   height: 100%;
   overflow-y: auto;
   padding-bottom: 80px;
