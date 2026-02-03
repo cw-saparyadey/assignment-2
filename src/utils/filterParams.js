@@ -11,8 +11,11 @@ export const buildFilterParams = ({
     params.push(`fuel=${selectedFuels.join("+")}`);
   }
 
-  if (minBudget || maxBudget) {
-    params.push(`budget=${minBudget || 0}-${maxBudget || 500}`);
+ if (
+    Number.isFinite(minBudget) &&
+    Number.isFinite(maxBudget)
+  ) {
+    params.push(`budget=${minBudget}-${maxBudget}`);
   }
 
   if (selectedMakes.length > 0) {

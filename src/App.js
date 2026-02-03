@@ -19,17 +19,16 @@ function App() {
       : JSON.parse(localStorage.getItem("selectedFuels")) || [],
   );
 
-  const [minBudget, setMinBudget] = useState(
-    searchParams.get("budget")
-      ? searchParams.get("budget").split("-")[0]
-      : localStorage.getItem("minBudget") || "",
-  );
+  const [minBudget, setMinBudget] = useState(() => {
+  const budget = searchParams.get("budget");
+  return budget ? Number(budget.split("-")[0]) : null;
+});
 
-  const [maxBudget, setMaxBudget] = useState(
-    searchParams.get("budget")
-      ? searchParams.get("budget").split("-")[1]
-      : localStorage.getItem("maxBudget") || "",
-  );
+const [maxBudget, setMaxBudget] = useState(() => {
+  const budget = searchParams.get("budget");
+  return budget ? Number(budget.split("-")[1]) : null;
+});
+
 
   const [selectedMakes, setSelectedMakes] = useState(
     searchParams.get("car")
@@ -40,13 +39,12 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const normalizeNextPageUrl = (url) => {
     if (!url) return null;
+ if (url.startsWith("http")) return url;
+  if (url.startsWith("/api")) return url;
 
-    if (url.startsWith("/api/")) {
-      return `/api${url}`;
-    }
-
-    return `/api/api${url}`;
-  };
+  return `/api${url}`;
+};
+    
 
   const fetchNextPage = () => {
     if (!nextPageUrl || isLoading) return;
@@ -103,17 +101,16 @@ function App() {
     setNextPageUrl(null);
     let url = "/api/api/stocks";
     const query = buildFilterParams({
-  selectedFuels,
-  minBudget,
-  maxBudget,
-  selectedMakes,
-  selectedCities,
-});
+      selectedFuels,
+      minBudget,
+      maxBudget,
+      selectedMakes,
+      selectedCities,
+    });
 
-if (query) {
-  url += `?${query}`;
-}
-
+    if (query) {
+      url += `?${query}`;
+    }
 
     fetch(url)
       .then((res) => res.json())
@@ -124,13 +121,20 @@ if (query) {
       .catch((err) => console.error(err));
   }, [selectedFuels, minBudget, maxBudget, selectedMakes, selectedCities]);
   useEffect(() => {
-  saveToStorage("selectedFuels", selectedFuels);
-  saveToStorage("minBudget", minBudget);
-  saveToStorage("maxBudget", maxBudget);
-  saveToStorage("selectedMakes", selectedMakes);
-  saveToStorage("selectedCities", selectedCities);
-  saveToStorage("sortBy", sortBy);
-}, [selectedFuels, minBudget, maxBudget, selectedMakes, selectedCities, sortBy]);
+    saveToStorage("selectedFuels", selectedFuels);
+    saveToStorage("minBudget", minBudget);
+    saveToStorage("maxBudget", maxBudget);
+    saveToStorage("selectedMakes", selectedMakes);
+    saveToStorage("selectedCities", selectedCities);
+    saveToStorage("sortBy", sortBy);
+  }, [
+    selectedFuels,
+    minBudget,
+    maxBudget,
+    selectedMakes,
+    selectedCities,
+    sortBy,
+  ]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -139,9 +143,13 @@ if (query) {
       params.set("fuel", selectedFuels.join("+"));
     }
 
-    if (minBudget || maxBudget) {
-      params.set("budget", `${minBudget || 0}-${maxBudget || 100}`);
-    }
+    if (
+  Number.isFinite(minBudget) &&
+  Number.isFinite(maxBudget)
+) {
+  params.set("budget", `${minBudget}-${maxBudget}`);
+}
+
 
     if (selectedMakes.length > 0) {
       params.set("car", selectedMakes.join("+"));
@@ -181,10 +189,9 @@ if (query) {
     return Number(car.makeYear) || 0;
   };
 
- const sortedCars = useMemo(() => {
-  return sortCars(cars, sortBy);
-}, [cars, sortBy]);
-
+  const sortedCars = useMemo(() => {
+    return sortCars(cars, sortBy);
+  }, [cars, sortBy]);
 
   useEffect(() => {
     if (!nextPageUrl) return;
@@ -240,18 +247,16 @@ if (query) {
           />
 
           <div className="cars-grid">
-  {isLoading ? (
-    <div className="cars-placeholder">Loading cars...</div>
-  ) : sortedCars.length === 0 ? (
-    <div className="cars-placeholder">
-      No cars found for selected filters
-    </div>
-  ) : (
-    sortedCars.map((car) => (
-      <CarCard key={car.id} car={car} />
-    ))
-  )}
-</div>
+            {isLoading ? (
+              <div className="cars-placeholder">Loading cars...</div>
+            ) : sortedCars.length === 0 ? (
+              <div className="cars-placeholder">
+                No cars found for selected filters
+              </div>
+            ) : (
+              sortedCars.map((car) => <CarCard key={car.id} car={car} />)
+            )}
+          </div>
 
           {nextPageUrl && (
             <div

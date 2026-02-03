@@ -3,6 +3,7 @@
 .filters-root {
   height: calc(100vh - 80px);   
   padding-right: 8px;
+  overflow-y: auto;
   border-right: 1px solid #eee;
 }
 
