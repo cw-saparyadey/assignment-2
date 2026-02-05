@@ -10,40 +10,36 @@ body {
   font-family: Arial, sans-serif;
 }
 
-
 .page-container {
   width: 100%;
   min-height: 100vh;
   background: #fff;
-  overflow:hidden;
+  overflow: hidden;
 }
 
 .content-wrapper {
   display: flex;
-  max-width: 1600px; 
-  height:calc(100vh - 80px);         
+  max-width: 1600px;
+  height: calc(100vh - 80px);
   margin: 0 auto;
-  padding: 0 clamp(200px, 12vw, 300px); 
+  padding: 0 clamp(200px, 12vw, 300px);
   gap: 18px;
 }
-
 
 .filters-section {
   width: 320px;
   position: sticky;
   top: 0;
-  overflow:hidden;
+  overflow: hidden;
   padding-right: 12px;
 }
 
 .cars-section {
- width: 75%;
+  width: 75%;
   height: 100%;
   overflow-y: auto;
   padding-bottom: 80px;
 }
-
-
 
 .cars-grid {
   display: grid;
@@ -99,9 +95,8 @@ body {
 }
 
 @media (max-width: 768px) {
-
- 
-  html, body {
+  html,
+  body {
     height: auto;
     overflow-x: hidden;
     overflow-y: auto;
@@ -116,7 +111,6 @@ body {
     flex-direction: column;
     padding: 0 12px;
   }
-
 
   .filters-section {
     width: 100%;
@@ -136,7 +130,6 @@ body {
     overflow-x: hidden;
   }
 
- 
   .cars-section {
     width: 100%;
     position: static;
@@ -168,7 +161,6 @@ body {
     object-fit: cover;
   }
 
-  
   .car-btn {
     position: relative;
     z-index: 1;

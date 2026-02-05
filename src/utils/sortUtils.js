@@ -1,4 +1,3 @@
-
 function getNumericPrice(car) {
   if (typeof car.price === "number") return car.price;
   if (typeof car.price === "string") {
@@ -15,21 +14,25 @@ export function sortCars(cars, sortBy) {
 
   switch (sortBy) {
     case "priceAsc":
-      return sorted.sort(
-        (a, b) => getNumericPrice(a) - getNumericPrice(b)
-      );
+      return sorted.sort((a, b) => getNumericPrice(a) - getNumericPrice(b));
 
     case "priceDesc":
-      return sorted.sort(
-        (a, b) => getNumericPrice(b) - getNumericPrice(a)
-      );
+      return sorted.sort((a, b) => getNumericPrice(b) - getNumericPrice(a));
 
     case "yearDesc":
-      return sorted.sort(
-        (a, b) => (b.makeYear || 0) - (a.makeYear || 0)
-      );
+      return sorted.sort((a, b) => (b.makeYear || 0) - (a.makeYear || 0));
+
+    case "yearAsc":
+      return sorted.sort((a, b) => (a.makeYear || 0) - (b.makeYear || 0));
 
     default:
-      return sorted; 
+      return sorted;
   }
 }
+
+
+
+
+
+
+

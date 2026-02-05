@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { FUEL_TYPES } from "../../utils/constant";
 import "./Filters.css";
 import { validateBudget } from "../../utils/budgetUtils";
-import {clearFiltersFromStorage} from "../../utils/storage";
+import { clearFiltersFromStorage } from "../../utils/storage";
 const SLIDER_MIN = 0;
 const SLIDER_MAX = 21;
 
@@ -43,25 +43,25 @@ function Filters({
     );
   };
   useEffect(() => {
-  const fetchFiltersData = async () => {
-    try {
-      const [makesRes, citiesRes] = await Promise.all([
-        fetch("/api/api/v2/makes/?type=new"),
-        fetch("/api/api/cities"),
-      ]);
+    const fetchFiltersData = async () => {
+      try {
+        const [makesRes, citiesRes] = await Promise.all([
+          fetch("/api/api/v2/makes/?type=new"),
+          fetch("/api/api/cities"),
+        ]);
 
-      const makesData = await makesRes.json();
-      const citiesData = await citiesRes.json();
+        const makesData = await makesRes.json();
+        const citiesData = await citiesRes.json();
 
-      setMakes(makesData || []);
-      setCities(citiesData || []);
-    } catch (err) {
-      console.error("Filters API error", err);
-    }
-  };
+        setMakes(makesData || []);
+        setCities(citiesData || []);
+      } catch (err) {
+        console.error("Filters API error", err);
+      }
+    };
 
-  fetchFiltersData();
-}, []);
+    fetchFiltersData();
+  }, []);
 
   const handleMakeChange = (makeId) => {
     setSelectedMakes((prev) =>
@@ -70,7 +70,7 @@ function Filters({
         : [...prev, makeId],
     );
   };
- 
+
   const handleCityChange = (cityId) => {
     setSelectedCities((prev) =>
       prev.includes(cityId)
@@ -89,12 +89,10 @@ function Filters({
       cityQuery.toLowerCase(),
     );
 
-    // 🔹 No search → only popular cities
     if (!cityQuery) {
       return city.IsPopular;
     }
 
-    // 🔹 Searching → all cities
     return matchesQuery;
   });
   const filteredMakes = makes.filter((make) =>
@@ -161,14 +159,13 @@ function Filters({
         <button
           className="clear-btn"
           onClick={() => {
-    clearFiltersFromStorage();
-    setSelectedFuels([]);
-    setSelectedMakes([]);
-    setSelectedCities([]);
-    setMinBudget(null);
-    setMaxBudget(null);
-  }}
-
+            clearFiltersFromStorage();
+            setSelectedFuels([]);
+            setSelectedMakes([]);
+            setSelectedCities([]);
+            setMinBudget(null);
+            setMaxBudget(null);
+          }}
         >
           Clear All
         </button>

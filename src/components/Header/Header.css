@@ -18,17 +18,16 @@
 .logo {
   display: flex;
   align-items: center;
-  min-width: 120px; /* IMPORTANT */
+  min-width: 120px; 
 }
 
-/* Logo image */
+
 .logo img {
   height: 28px;
   width: auto;
-  display: block; /* 🔥 KEY FIX */
+  display: block; 
 }
 
-/* Nav */
 .nav-links {
   display: flex;
   gap: 32px;
@@ -41,14 +40,13 @@
   font-size: 14px;
 }
 
-/* Right side */
+
 .header-actions {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-/* Search */
 .search-box {
   position: relative;
 }
@@ -68,16 +66,15 @@
   font-size: 14px;
 }
 
-/* Icons */
+
 .icon {
   font-size: 18px;
   cursor: pointer;
 }
 
-/* 🔥 MOBILE */
 @media (max-width: 768px) {
   .nav-links {
-    display: none; /* hide menu like CarWale */
+    display: none; 
   }
 
   .search-box input {

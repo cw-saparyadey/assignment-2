@@ -16,7 +16,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
 
   const loaderRef = useRef(null);
-  const searchParams = new URLSearchParams(window.location.search);
 
   const [selectedFuels, setSelectedFuels] = useState(
     storedFilters?.fuels || [],
@@ -30,21 +29,13 @@ function App() {
   const [selectedMakes, setSelectedMakes] = useState(
     storedFilters?.makes || [],
   );
+  
   const [selectedCities, setSelectedCities] = useState(
     storedFilters?.cities || [],
   );
+
   const [sortBy, setSortBy] = useState(storedFilters?.sortBy || "");
 
-  const getValidCityIdsFromUrl = () => {
-    const cityParam = searchParams.get("city");
-
-    if (!cityParam) return [];
-
-    return cityParam
-      .split("+")
-      .map(Number)
-      .filter((id) => id > 0);
-  };
 
   useEffect(() => {
     setCars([]);
@@ -131,43 +122,29 @@ function App() {
     selectedCities,
     sortBy,
   ]);
-  useEffect(() => {
-    const params = new URLSearchParams();
-
-    if (selectedFuels.length > 0) {
-      params.set("fuel", selectedFuels.join("+"));
-    }
-
-    if (Number.isFinite(minBudget) && Number.isFinite(maxBudget)) {
-      params.set("budget", `${minBudget}-${maxBudget}`);
-    }
-
-    if (selectedMakes.length > 0) {
-      params.set("car", selectedMakes.join("+"));
-    }
-
-    if (selectedCities.length > 0) {
-      params.set("city", selectedCities.join("+"));
-    }
-
-    if (sortBy) {
-      params.set("sort", sortBy);
-    }
-
-    const newUrl =
-      params.toString().length > 0
-        ? `?${params.toString()}`
-        : window.location.pathname;
-
-    window.history.replaceState(null, "", newUrl);
-  }, [
+ useEffect(() => {
+  const query = buildFilterParams({
     selectedFuels,
     minBudget,
     maxBudget,
     selectedMakes,
     selectedCities,
     sortBy,
-  ]);
+  });
+
+  const newUrl = query
+    ? `${window.location.pathname}?${query}`
+    : window.location.pathname;
+
+  window.history.replaceState(null, "", newUrl);
+}, [
+  selectedFuels,
+  minBudget,
+  maxBudget,
+  selectedMakes,
+  selectedCities,
+  sortBy,
+]);
 
   return (
     <div className="page-container">
