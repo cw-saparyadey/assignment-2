@@ -15,14 +15,21 @@ export function buildFilterParams({
   if (Number.isFinite(minBudget) && Number.isFinite(maxBudget)) {
     params.set("budget", `${minBudget}-${maxBudget}`);
   }
+if (selectedMakes?.length) {
+  params.set(
+    "car",
+    selectedMakes.map((m) => m.id).join(","),
+  );
+}
 
-  if (selectedMakes?.length) {
-    params.set("car", selectedMakes.join(","));
-  }
+if (selectedCities?.length) {
+  params.set(
+    "city",
+    selectedCities.map((c) => c.id).join(","),
+  );
+}
 
-  if (selectedCities?.length) {
-    params.set("city", selectedCities.join(","));
-  }
+  
   if (sortBy) {
     params.set("sort", sortBy);
   }

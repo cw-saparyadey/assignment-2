@@ -1,9 +1,10 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FUEL_TYPES } from "../../utils/constant";
 import "./Filters.css";
 import { validateBudget } from "../../utils/budgetUtils";
 import { clearFiltersFromStorage } from "../../utils/storage";
+
 const SLIDER_MIN = 0;
 const SLIDER_MAX = 21;
 
@@ -31,6 +32,7 @@ function Filters({
   const toggleSection = (key) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
   const [makeQuery, setMakeQuery] = useState("");
   const [cityQuery, setCityQuery] = useState("");
 
@@ -42,6 +44,7 @@ function Filters({
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
     );
   };
+
   useEffect(() => {
     const fetchFiltersData = async () => {
       try {
@@ -63,26 +66,63 @@ function Filters({
     fetchFiltersData();
   }, []);
 
-  const handleMakeChange = (makeId) => {
-    setSelectedMakes((prev) =>
-      prev.includes(makeId)
-        ? prev.filter((id) => id !== makeId)
-        : [...prev, makeId],
-    );
-  };
+  const handleMakeChange = (make) => {
+  setSelectedMakes((prev) =>
+    prev.some((m) => m.id === make.makeId)
+      ? prev.filter((m) => m.id !== make.makeId)
+      : [...prev, { id: make.makeId, name: make.makeName }],
+  );
+};
 
-  const handleCityChange = (cityId) => {
-    setSelectedCities((prev) =>
-      prev.includes(cityId)
-        ? prev.filter((id) => id !== cityId)
-        : [...prev, cityId],
-    );
-  };
+const handleCityChange = (city) => {
+  setSelectedCities((prev) =>
+    prev.some((c) => c.id === city.CityId)
+      ? prev.filter((c) => c.id !== city.CityId)
+      : [...prev, { id: city.CityId, name: city.CityName }],
+  );
+};
+
+
+
   const sliderMin =
     minBudget === "" ? SLIDER_MIN : Math.min(Number(minBudget), SLIDER_MAX);
 
   const sliderMax =
     maxBudget === "" ? SLIDER_MAX : Math.min(Number(maxBudget), SLIDER_MAX);
+
+
+
+  const [tempMin, setTempMin] = useState(sliderMin);
+  const [tempMax, setTempMax] = useState(sliderMax);
+
+  const minDebounceRef = useRef(null);
+  const maxDebounceRef = useRef(null);
+
+  useEffect(() => {
+  setTempMin(sliderMin);
+  setTempMax(sliderMax);
+}, [sliderMin, sliderMax]);
+
+
+  const debouncedSetMin = (val) => {
+    if (minDebounceRef.current) {
+      clearTimeout(minDebounceRef.current);
+    }
+
+    minDebounceRef.current = setTimeout(() => {
+      setMinBudget(val);
+    }, 300);
+  };
+
+  const debouncedSetMax = (val) => {
+    if (maxDebounceRef.current) {
+      clearTimeout(maxDebounceRef.current);
+    }
+
+    maxDebounceRef.current = setTimeout(() => {
+      setMaxBudget(val);
+    }, 300);
+  };
 
   const filteredCities = cities.filter((city) => {
     const matchesQuery = city.CityName.toLowerCase().includes(
@@ -95,6 +135,8 @@ function Filters({
 
     return matchesQuery;
   });
+
+
   const filteredMakes = makes.filter((make) =>
     make.makeName.toLowerCase().includes(makeQuery.toLowerCase()),
   );
@@ -177,7 +219,6 @@ function Filters({
           onClick={() => toggleSection("budget")}
         >
           <span>Budget (Lakh)</span>
-
           <span className={`chevron ${openSections.budget ? "up" : "down"}`} />
         </div>
 
@@ -222,8 +263,8 @@ function Filters({
                   <div
                     className="range-active"
                     style={{
-                      left: `${(sliderMin / SLIDER_MAX) * 100}%`,
-                      width: `${((sliderMax - sliderMin) / SLIDER_MAX) * 100}%`,
+                      left: `${(tempMin / SLIDER_MAX) * 100}%`,
+                      width: `${((tempMax - tempMin) / SLIDER_MAX) * 100}%`,
                     }}
                   />
 
@@ -231,14 +272,14 @@ function Filters({
                     type="range"
                     min={SLIDER_MIN}
                     max={SLIDER_MAX}
-                    value={sliderMin}
+                    value={tempMin}
                     onChange={(e) => {
                       const val = Number(e.target.value);
-
-                      if (maxBudget !== "" && val > maxBudget) return;
+                      if (tempMax !== "" && val > tempMax) return;
 
                       setBudgetError("");
-                      setMinBudget(val);
+                      setTempMin(val);
+                      debouncedSetMin(val);
                     }}
                     className="range"
                   />
@@ -247,14 +288,14 @@ function Filters({
                     type="range"
                     min={SLIDER_MIN}
                     max={SLIDER_MAX}
-                    value={sliderMax}
+                    value={tempMax}
                     onChange={(e) => {
                       const val = Number(e.target.value);
-
-                      if (minBudget !== "" && val < minBudget) return;
+                      if (tempMin !== "" && val < tempMin) return;
 
                       setBudgetError("");
-                      setMaxBudget(val);
+                      setTempMax(val);
+                      debouncedSetMax(val);
                     }}
                     className="range"
                   />
@@ -267,7 +308,6 @@ function Filters({
                     placeholder="Any"
                     onChange={handleMinBudgetChange}
                   />
-
                   <span> - </span>
                   <input
                     type="number"
@@ -275,7 +315,6 @@ function Filters({
                     placeholder="21+"
                     onChange={handleMaxBudgetChange}
                   />
-
                   {budgetError && (
                     <div className="budget-error">{budgetError}</div>
                   )}
@@ -309,8 +348,8 @@ function Filters({
                   <label key={make.makeId} className="checkbox-row">
                     <input
                       type="checkbox"
-                      checked={selectedMakes.includes(make.makeId)}
-                      onChange={() => handleMakeChange(make.makeId)}
+                      checked={selectedMakes.some((m) => m.id === make.makeId)}
+  onChange={() => handleMakeChange(make)}
                     />
                     <span>{make.makeName}</span>
                   </label>
@@ -340,17 +379,34 @@ function Filters({
               {filteredCities.length === 0 && cityQuery ? (
                 <div className="not-found">No city found</div>
               ) : (
-                filteredCities.map((city) => (
-                  <button
-                    key={city.CityId}
-                    className={`pill ${
-                      selectedCities.includes(city.CityId) ? "active" : ""
-                    }`}
-                    onClick={() => handleCityChange(city.CityId)}
-                  >
-                    {city.CityName}
-                  </button>
-                ))
+                <>
+                  {filteredCities.map((city) => (
+                    <button
+                      key={city.CityId}
+                     className={`pill ${
+    selectedCities.some((c) => c.id === city.CityId) ? "active" : ""
+  }`}
+  onClick={() => handleCityChange(city)}
+                    >
+                      {city.CityName}
+                    </button>
+                  ))}
+                  {!cityQuery &&
+                     cities
+                      .filter(
+                        (city) =>
+                          !city.IsPopular && selectedCities.includes(city.CityId)
+                      )
+                      .map((city) => (
+                        <button
+                          key={city.CityId}
+                          className="pill active"
+                          onClick={() => handleCityChange(city.CityId)}
+                        >
+                          {city.CityName}
+                        </button>
+                      ))}
+                </>
               )}
             </div>
           </>

@@ -1,44 +1,12 @@
-import placeholder from "../../assets/image.png";
 import "./CarCard.css";
-import { useState } from "react";
+import Info from "./Info";
 
 function CarCard({ car }) {
-  const images =
-    car.stockImages && car.stockImages.length > 0
-      ? car.stockImages
-      : [placeholder];
-
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const carlength = car.stockImages ? car.stockImages.length : 0;
 
   return (
     <div className="car-card">
-      <div className="image-container">
-        <button
-          className="nav-btn left"
-          onClick={() =>
-            setCurrentIndex((i) => (i === 0 ? images.length - 1 : i - 1))
-          }
-        >
-          ‹
-        </button>
-
-        <img
-          src={images[currentIndex]}
-          alt={car.carName}
-          className="car-image"
-          loading="lazy"
-          onError={(e) => (e.target.src = placeholder)}
-        />
-
-        <button
-          className="nav-btn right"
-          onClick={() =>
-            setCurrentIndex((i) => (i === images.length - 1 ? 0 : i + 1))
-          }
-        >
-          ›
-        </button>
-      </div>
+      <Info car={car} carlength={carlength} />
 
       <div className="card-body">
         <h3 className="title">{car.carName}</h3>

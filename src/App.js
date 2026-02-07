@@ -14,6 +14,9 @@ function App() {
   const [cars, setCars] = useState([]);
   const [nextPageUrl, setNextPageUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(false);
+
+  
 
   const loaderRef = useRef(null);
 
@@ -35,31 +38,60 @@ function App() {
   );
 
   const [sortBy, setSortBy] = useState(storedFilters?.sortBy || "");
+  const [makesMap, setMakesMap] = useState({});
+const [citiesMap, setCitiesMap] = useState({});
 
-
-  useEffect(() => {
-    setCars([]);
-    setNextPageUrl(null);
-
-    let url = "/api/api/stocks";
-    const query = buildFilterParams({
-      selectedFuels,
-      minBudget,
-      maxBudget,
-      selectedMakes,
-      selectedCities,
+useEffect(() => {
+  setMakesMap((prev) => {
+    const updated = { ...prev };
+    cars.forEach((car) => {
+      if (car.make?.id && car.make?.name) {
+        updated[car.make.id] = car.make.name;
+      }
     });
+    return updated;
+  });
 
-    if (query) url += `?${query}`;
+  setCitiesMap((prev) => {
+    const updated = { ...prev };
+    cars.forEach((car) => {
+      if (car.city?.id && car.city?.name) {
+        updated[car.city.id] = car.city.name;
+      }
+    });
+    return updated;
+  });
+}, [cars]);
 
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        setCars(data.stocks || []);
-        setNextPageUrl(data.nextPageUrl || null);
-      })
-      .catch(console.error);
-  }, [selectedFuels, minBudget, maxBudget, selectedMakes, selectedCities]);
+
+useEffect(() => {
+  setIsInitialLoading(true);
+  setCars([]);
+  setNextPageUrl(null);
+
+  let url = "/api/api/stocks";
+  const query = buildFilterParams({
+    selectedFuels,
+    minBudget,
+    maxBudget,
+    selectedMakes,
+    selectedCities,
+  });
+
+  if (query) url += `?${query}`;
+
+  fetch(url)
+    .then((res) => res.json())
+    .then((data) => {
+      setCars(data.stocks || []);
+      setNextPageUrl(data.nextPageUrl || null);
+    })
+    .catch(console.error)
+    .finally(() => {
+      setIsInitialLoading(false);
+    });
+}, [selectedFuels, minBudget, maxBudget, selectedMakes, selectedCities]);
+
 
   const fetchNextPage = () => {
     if (!nextPageUrl || isLoading) return;
@@ -169,6 +201,8 @@ function App() {
         <main className="cars-section">
           <SortBar sortBy={sortBy} setSortBy={setSortBy} />
           <AppliedFilters
+            makesMap={makesMap}
+            citiesMap={citiesMap}
             selectedFuels={selectedFuels}
             setSelectedFuels={setSelectedFuels}
             selectedMakes={selectedMakes}
@@ -181,11 +215,20 @@ function App() {
             setMaxBudget={setMaxBudget}
           />
 
-          <div className="cars-grid">
-            {sortedCars.map((car) => (
-              <CarCard key={car.id} car={car} />
-            ))}
-          </div>
+          {isInitialLoading && (
+  <div style={{ textAlign: "center", padding: "40px" }}>
+    <p>Loading cars...</p>
+  </div>
+)}
+
+{!isInitialLoading && (
+  <div className="cars-grid">
+    {sortedCars.map((car) => (
+      <CarCard key={car.id} car={car} />
+    ))}
+  </div>
+)}
+
           {nextPageUrl && (
             <div
               ref={loaderRef}

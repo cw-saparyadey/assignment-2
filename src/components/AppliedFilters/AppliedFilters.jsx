@@ -1,4 +1,5 @@
 import './AppliedFilters.css'
+import { FUEL_TYPES } from "../../utils/constant";
 function AppliedFilters({
   selectedFuels,
   setSelectedFuels,
@@ -9,7 +10,8 @@ function AppliedFilters({
   minBudget,
   maxBudget,
   setMinBudget,
-  setMaxBudget,
+  setMaxBudget
+
 }) {
   const hasFilters =
     selectedFuels.length ||
@@ -19,46 +21,71 @@ function AppliedFilters({
     maxBudget;
 
   if (!hasFilters) return null;
+ 
 
   return (
     <div className="applied-filters">
       
-      {selectedFuels.map((fuel) => (
-        <span key={fuel} className="chip">
-          Fuel {fuel}
-          <button onClick={() =>
-            setSelectedFuels((prev) => prev.filter((f) => f !== fuel))
-          }>
-            ✕
-          </button>
-        </span>
-      ))}
+     {selectedFuels.map((fuelId) => {
+  const fuelObj = FUEL_TYPES.find(
+    (fuel) => fuel.value === fuelId
+  );
 
-      {selectedMakes.map((make) => (
-        <span key={make} className="chip">
-          Make {make}
-          <button onClick={() =>
-            setSelectedMakes((prev) => prev.filter((m) => m !== make))
-          }>
-            ✕
-          </button>
-        </span>
-      ))}
+  return (
+    <span key={fuelId} className="chip">
+      Fuel {fuelObj?.label}
+      <button
+        onClick={() =>
+          setSelectedFuels((prev) =>
+            prev.filter((f) => f !== fuelId)
+          )
+        }
+      >
+        ✕
+      </button>
+    </span>
+  );
+})}
 
-      {selectedCities.map((city) => (
-        <span key={city} className="chip">
-          City {city}
-          <button onClick={() =>
-            setSelectedCities((prev) => prev.filter((c) => c !== city))
-          }>
-            ✕
-          </button>
-        </span>
-      ))}
+ 
+     {selectedMakes.map((make) => (
+  <span key={make.id} className="chip">
+    Make {make.name}
+    <button
+      onClick={() =>
+        setSelectedMakes((prev) =>
+          prev.filter((m) => m.id !== make.id)
+        )
+      }
+    >
+      ✕
+    </button>
+  </span>
+))}
+
+
+
+{selectedCities.map((city) => (
+  <span key={city.id} className="chip">
+    City {city.name}
+    <button
+      onClick={() =>
+        setSelectedCities((prev) =>
+          prev.filter((c) => c.id !== city.id)
+        )
+      }
+    >
+      ✕
+    </button>
+  </span>
+))}
+
+
+
 
       {(minBudget || maxBudget) && (
         <span className="chip">
-          ₹{minBudget || 0}–₹{maxBudget || "Max"} L
+          Budget :₹{minBudget || 0}–₹{maxBudget || "Max"} L
           <button onClick={() => {
             setMinBudget("");
             setMaxBudget("");
