@@ -1,5 +1,7 @@
-import './AppliedFilters.css'
+import "./AppliedFilters.css";
 import { FUEL_TYPES } from "../../utils/constant";
+import handleRemove from "../../utils/applyfilters";
+
 function AppliedFilters({
   selectedFuels,
   setSelectedFuels,
@@ -10,8 +12,7 @@ function AppliedFilters({
   minBudget,
   maxBudget,
   setMinBudget,
-  setMaxBudget
-
+  setMaxBudget,
 }) {
   const hasFilters =
     selectedFuels.length ||
@@ -21,80 +22,73 @@ function AppliedFilters({
     maxBudget;
 
   if (!hasFilters) return null;
- 
 
   return (
     <div className="applied-filters">
       
-     {selectedFuels.map((fuelId) => {
-  const fuelObj = FUEL_TYPES.find(
-    (fuel) => fuel.value === fuelId
-  );
+      {selectedFuels.map((fuelId) => {
+        const fuelObj = FUEL_TYPES.find(
+          (fuel) => fuel.value === fuelId
+        );
 
-  return (
-    <span key={fuelId} className="chip">
-      Fuel {fuelObj?.label}
-      <button
-        onClick={() =>
-          setSelectedFuels((prev) =>
-            prev.filter((f) => f !== fuelId)
-          )
-        }
-      >
-        ✕
-      </button>
-    </span>
-  );
-})}
+        return (
+          <span key={fuelId} className="chip">
+            Fuel : {fuelObj?.label}
+            <button
+              onClick={() =>
+                handleRemove(fuelId, setSelectedFuels)
+              }
+            >
+              ✕
+            </button>
+          </span>
+        );
+      })}
 
- 
-     {selectedMakes.map((make) => (
-  <span key={make.id} className="chip">
-    Make {make.name}
-    <button
-      onClick={() =>
-        setSelectedMakes((prev) =>
-          prev.filter((m) => m.id !== make.id)
-        )
-      }
-    >
-      ✕
-    </button>
-  </span>
-))}
+      
+      {selectedMakes.map((make) => (
+        <span key={make.id} className="chip">
+          Make : {make.name}
+          <button
+            onClick={() =>
+              handleRemove(make.id, setSelectedMakes, "id")
+            }
+          >
+            ✕
+          </button>
+        </span>
+      ))}
 
+  
+      {selectedCities.map((city) => (
+        <span key={city.id} className="chip">
+          City : {city.name}
+          <button
+            onClick={() =>
+              handleRemove(city.id, setSelectedCities, "id")
+            }
+          >
+            ✕
+          </button>
+        </span>
+      ))}
 
-
-{selectedCities.map((city) => (
-  <span key={city.id} className="chip">
-    City {city.name}
-    <button
-      onClick={() =>
-        setSelectedCities((prev) =>
-          prev.filter((c) => c.id !== city.id)
-        )
-      }
-    >
-      ✕
-    </button>
-  </span>
-))}
-
-
-
-
+    
       {(minBudget || maxBudget) && (
         <span className="chip">
-          Budget :₹{minBudget || 0}–₹{maxBudget || "Max"} L
-          <button onClick={() => {
-            setMinBudget("");
-            setMaxBudget("");
-          }}>
+          Budget : ₹{minBudget || 0} – ₹{maxBudget || "Max"} L
+          <button
+            onClick={() => {
+              setMinBudget("");
+              setMaxBudget("");
+            }}
+          >
             ✕
           </button>
         </span>
       )}
 
+  
       <button
         className="clear-all"
         onClick={() => {

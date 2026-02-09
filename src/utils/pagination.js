@@ -4,6 +4,4 @@ export const normalizeNextPageUrl = (url) => {
   if (url.startsWith("/api/")) {
     return `/api${url}`;
   }
-
-  return `/api/api${url}`;
 };

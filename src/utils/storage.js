@@ -1,4 +1,4 @@
-const STORAGE_KEY = "carwaleFilters";
+import { STORAGE_KEY } from "./constant";
 
 export const getFiltersFromStorage = () => {
   try {

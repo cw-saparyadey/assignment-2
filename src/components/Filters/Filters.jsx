@@ -4,9 +4,7 @@ import { FUEL_TYPES } from "../../utils/constant";
 import "./Filters.css";
 import { validateBudget } from "../../utils/budgetUtils";
 import { clearFiltersFromStorage } from "../../utils/storage";
-
-const SLIDER_MIN = 0;
-const SLIDER_MAX = 21;
+import { SLIDER_MAX, SLIDER_MIN } from "../../utils/constant";
 
 function Filters({
   selectedFuels,
@@ -46,25 +44,39 @@ function Filters({
   };
 
   useEffect(() => {
-    const fetchFiltersData = async () => {
-      try {
-        const [makesRes, citiesRes] = await Promise.all([
-          fetch("/api/api/v2/makes/?type=new"),
-          fetch("/api/api/cities"),
-        ]);
+  const fetchFiltersData = async () => {
+    try {
+      const results = await Promise.allSettled([
+        fetch("/api/api/v2/makes/?type=new"),
+        fetch("/api/api/cities"),
+      ]);
 
-        const makesData = await makesRes.json();
-        const citiesData = await citiesRes.json();
-
+      // Makes
+      if (results[0].status === "fulfilled") {
+        const makesData = await results[0].value.json();
         setMakes(makesData || []);
-        setCities(citiesData || []);
-      } catch (err) {
-        console.error("Filters API error", err);
+      } else {
+        setMakes([]);
+        console.error("Makes API failed");
       }
-    };
 
-    fetchFiltersData();
-  }, []);
+      // Cities
+      if (results[1].status === "fulfilled") {
+        const citiesData = await results[1].value.json();
+        setCities(citiesData || []);
+      } else {
+        setCities([]);
+        console.error("Cities API failed");
+      }
+    } catch (err) {
+      console.error("Unexpected error", err);
+      setMakes([]);
+      setCities([]);
+    }
+  };
+
+  fetchFiltersData();
+}, []);
 
   const handleMakeChange = (make) => {
   setSelectedMakes((prev) =>
