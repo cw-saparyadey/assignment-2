@@ -87,12 +87,17 @@ function Filters({
 };
 
 const handleCityChange = (city) => {
-  setSelectedCities((prev) =>
-    prev.some((c) => c.id === city.CityId)
-      ? prev.filter((c) => c.id !== city.CityId)
-      : [...prev, { id: city.CityId, name: city.CityName }],
-  );
+  setSelectedCities((prev) => {
+
+    if (prev.length && prev[0].id === city.CityId) {
+      return [];
+    }
+
+    
+    return [{ id: city.CityId, name: city.CityName }];
+  });
 };
+
 
 
 
@@ -418,39 +423,44 @@ useEffect(() => {
             />
 
             <div className="city-pills">
-              {filteredCities.length === 0 && cityQuery ? (
-                <div className="not-found">No city found</div>
-              ) : (
-                <>
-                  {filteredCities.map((city) => (
-                    <button
-                      key={city.CityId}
-                     className={`pill ${
-    selectedCities.some((c) => c.id === city.CityId) ? "active" : ""
-  }`}
-  onClick={() => handleCityChange(city)}
-                    >
-                      {city.CityName}
-                    </button>
-                  ))}
-                  {!cityQuery &&
-                     cities
-                      .filter(
-                        (city) =>
-                          !city.IsPopular && selectedCities.includes(city.CityId)
-                      )
-                      .map((city) => (
-                        <button
-                          key={city.CityId}
-                          className="pill active"
-                          onClick={() => handleCityChange(city.CityId)}
-                        >
-                          {city.CityName}
-                        </button>
-                      ))}
-                </>
-              )}
-            </div>
+  {filteredCities.length === 0 && cityQuery ? (
+    <div className="not-found">No city found</div>
+  ) : (
+    <>
+      {filteredCities.map((city) => (
+        <button
+          key={city.CityId}
+          className={`pill ${
+            selectedCities.some((c) => c.id === city.CityId)
+              ? "active"
+              : ""
+          }`}
+          onClick={() => handleCityChange(city)}
+        >
+          {city.CityName}
+        </button>
+      ))}
+
+      {!cityQuery &&
+        cities
+          .filter(
+            (city) =>
+              !city.IsPopular &&
+              selectedCities.some((c) => c.id === city.CityId)
+          )
+          .map((city) => (
+            <button
+              key={city.CityId}
+              className="pill active"
+              onClick={() => handleCityChange(city)}
+            >
+              {city.CityName}
+            </button>
+          ))}
+    </>
+  )}
+</div>
+
           </>
         )}
       </div>
