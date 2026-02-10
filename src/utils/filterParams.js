@@ -8,8 +8,10 @@ export function buildFilterParams({
 }) {
   const params = new URLSearchParams();
 
-  if (selectedFuels?.length) {
-    params.set("fuel", selectedFuels.join(","));
+   if (selectedFuels?.length) {
+    selectedFuels.forEach((fuel) => {
+      params.append("fuel", fuel);
+    });
   }
 
   if (Number.isFinite(minBudget) && Number.isFinite(maxBudget)) {
@@ -17,12 +19,12 @@ export function buildFilterParams({
   }
 
   if (selectedMakes?.length) {
-    params.set(
-      "car",
-      selectedMakes
-        .map((m) => (typeof m === "number" ? m : m.id))
-        .join(",")
-    );
+    selectedMakes.forEach((m) => {
+      params.append(
+        "car",
+        typeof m === "number" ? m : m.id
+      );
+    });
   }
 
   if (selectedCities?.length) {

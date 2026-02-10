@@ -7,9 +7,9 @@ export const getFiltersFromStorage = () => {
 
     const params = new URLSearchParams(window.location.search);
 
-    const fuels = params.get("fuel")
-      ? params.get("fuel").split(",").map(Number)
-      : storedFilters.fuels || [];
+       const fuels = params.getAll("fuel").length
+  ? params.getAll("fuel").map(Number)
+  : storedFilters.fuels || [];
 
     const budgetParam = params.get("budget");
     const budget = budgetParam
@@ -19,9 +19,10 @@ export const getFiltersFromStorage = () => {
         }
       : storedFilters.budget || { min: null, max: null };
 
-    const makes = params.get("car")
-      ? params.get("car").split(",").map(Number)
-      : storedFilters.makes || [];
+const makes = params.getAll("car").length
+  ? params.getAll("car").map(Number)
+  : storedFilters.makes || [];
+
 
     const cities = params.get("city")
       ? params.get("city").split(",").map(Number)
