@@ -202,6 +202,36 @@ const handleCityChange = (city) => {
     setBudgetError("");
     setMaxBudget(num);
   };
+useEffect(() => {
+  if (!makes.length || !selectedMakes.length) return;
+
+  // if already objects, skip
+  if (typeof selectedMakes[0] === "object") return;
+
+  const hydratedMakes = makes
+    .filter((make) => selectedMakes.includes(make.makeId))
+    .map((make) => ({
+      id: make.makeId,
+      name: make.makeName,
+    }));
+
+  setSelectedMakes(hydratedMakes);
+}, [makes]);
+
+useEffect(() => {
+  if (!cities.length || !selectedCities.length) return;
+
+  if (typeof selectedCities[0] === "object") return;
+
+  const hydratedCities = cities
+    .filter((city) => selectedCities.includes(city.CityId))
+    .map((city) => ({
+      id: city.CityId,
+      name: city.CityName,
+    }));
+
+  setSelectedCities(hydratedCities);
+}, [cities]);
 
   return (
     <div className="filters-root">
