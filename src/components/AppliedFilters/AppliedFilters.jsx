@@ -26,24 +26,19 @@ function AppliedFilters({
   return (
     <div className="applied-filters">
       
-      {selectedFuels.map((fuelId) => {
-        const fuelObj = FUEL_TYPES.find(
-          (fuel) => fuel.value === fuelId
-        );
+      {selectedFuels.map((fuel) => (
+  <span key={fuel.id} className="chip">
+    Fuel : {fuel.name}
+    <button
+      onClick={() =>
+        handleRemove(fuel.id, setSelectedFuels, "id")
+      }
+    >
+      ✕
+    </button>
+  </span>
+))}
 
-        return (
-          <span key={fuelId} className="chip">
-            Fuel : {fuelObj?.label}
-            <button
-              onClick={() =>
-                handleRemove(fuelId, setSelectedFuels)
-              }
-            >
-              ✕
-            </button>
-          </span>
-        );
-      })}
 
       
       {selectedMakes.map((make) => (

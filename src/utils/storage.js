@@ -7,7 +7,7 @@ export const getFiltersFromStorage = () => {
 
     const params = new URLSearchParams(window.location.search);
 
-       const fuels = params.getAll("fuel").length
+      const fuels = params.getAll("fuel").length
   ? params.getAll("fuel").map(Number)
   : storedFilters.fuels || [];
 

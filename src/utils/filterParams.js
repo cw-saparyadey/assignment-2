@@ -9,10 +9,10 @@ export function buildFilterParams({
   const params = new URLSearchParams();
 
    if (selectedFuels?.length) {
-    selectedFuels.forEach((fuel) => {
-      params.append("fuel", fuel);
-    });
-  }
+  selectedFuels.forEach((f) => {
+    params.append("fuel", f.id);
+  });
+}
 
   if (Number.isFinite(minBudget) && Number.isFinite(maxBudget)) {
     params.set("budget", `${minBudget}-${maxBudget}`);

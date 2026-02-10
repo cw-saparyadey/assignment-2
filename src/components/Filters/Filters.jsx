@@ -37,11 +37,21 @@ function Filters({
   const [makes, setMakes] = useState([]);
   const [cities, setCities] = useState([]);
 
-  const handleFuelChange = (value) => {
-    setSelectedFuels((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
-    );
-  };
+  const handleFuelChange = (fuel) => {
+  setSelectedFuels((prev) => {
+    const exists = prev.some((f) => f.id === fuel.value);
+
+    if (exists) {
+      return prev.filter((f) => f.id !== fuel.value);
+    }
+
+    return [
+      ...prev,
+      { id: fuel.value, name: fuel.label },
+    ];
+  });
+};
+
 
   useEffect(() => {
   const fetchFiltersData = async () => {
@@ -207,6 +217,21 @@ const handleCityChange = (city) => {
     setBudgetError("");
     setMaxBudget(num);
   };
+
+  useEffect(() => {
+  if (!selectedFuels.length) return;
+  if (typeof selectedFuels[0] === "object") return;
+
+  const hydratedFuels = FUEL_TYPES
+    .filter((f) => selectedFuels.includes(f.value))
+    .map((f) => ({
+      id: f.value,
+      name: f.label,
+    }));
+
+  setSelectedFuels(hydratedFuels);
+}, []);
+
 useEffect(() => {
   if (!makes.length || !selectedMakes.length) return;
 
@@ -477,8 +502,9 @@ useEffect(() => {
               <label key={fuel.value} className="checkbox-row">
                 <input
                   type="checkbox"
-                  checked={selectedFuels.includes(fuel.value)}
-                  onChange={() => handleFuelChange(fuel.value)}
+                  checked={selectedFuels.some((f) => f.id === fuel.value)}
+onChange={() => handleFuelChange(fuel)}
+
                 />
                 <span>{fuel.label}</span>
               </label>
